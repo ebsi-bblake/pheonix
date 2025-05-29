@@ -203,7 +203,7 @@ align-items: center;
 
 .card {
   
-  background: url(../Image/Empyrean-AI.png) center no-repeat #191c29;
+  background: url(../images/Empyrean-AI.png) center no-repeat #191c29;
   width: var(--card-width);
   height: var(--card-height);
   padding: 3px;
@@ -229,7 +229,7 @@ align-items: center;
   color: rgb(88 199 250 / 100%);
   transition: color 1s;
 
-    background: url(../Image/Empyrean-AI.png) center no-repeat #191c29;
+    background: url(../images/Empyrean-AI.png) center no-repeat #191c29;
   transition: width 2s linear 1s;
 
 

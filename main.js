@@ -1,5 +1,6 @@
 // === Config Constants ===
-const VoiceFlowUrl = "/api/voiceflow";
+const VoiceFlowUrl =
+  "http://localhost:8080/api/voiceflow/state/user/ebsi_pheonix/interact";
 const HEADERS = {
   versionID: "production",
   Accept: "application/json",
@@ -148,7 +149,7 @@ const transitionTo = async (nextState) => {
     } catch { }
     currentAudio = null;
   }
-  console.log(`from : ${state} to ${nextState}`);
+  console.log(`transitioning: ${state} >> ${nextState}`);
   state = nextState;
   updateUI(state);
 };

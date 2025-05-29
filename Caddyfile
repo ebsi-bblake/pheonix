@@ -3,8 +3,29 @@
 root * /srv
 file_server
 
-handle_path /api/voiceflow/state/user/ebsi_pheonix/interact {
+# Global CORS preflight handler
+@options {
+    method OPTIONS
+    path_regexp .*
+}
+handle @options {
+    header Access-Control-Allow-Origin "*"
+    header Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    header Access-Control-Allow-Headers "*"
+    respond 204
+}
+
+# Voiceflow proxy route
+handle_path /api/voiceflow/* {
+    header Access-Control-Allow-Origin "*"
+    header Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    header Access-Control-Allow-Headers "*"
+
+    uri strip_prefix /api/voiceflow
     reverse_proxy https://general-runtime.voiceflow.com {
-        header_up Authorization "VF.DM.68373d7066f6a4b370d47282.7j7c6iWB13Fs9yu1"
+        header_up Host general-runtime.voiceflow.com
+        header_up Authorization "{env.VOICEFLOW_API_KEY}"
+        header_up Origin ""
+        header_up Referer ""
     }
 }
