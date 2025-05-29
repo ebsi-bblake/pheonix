@@ -1,0 +1,10 @@
+:8080
+
+root * /srv
+file_server
+
+handle_path /api/voiceflow/state/user/ebsi_pheonix/interact {
+    reverse_proxy https://general-runtime.voiceflow.com {
+        header_up Authorization "VF.DM.68373d7066f6a4b370d47282.7j7c6iWB13Fs9yu1"
+    }
+}

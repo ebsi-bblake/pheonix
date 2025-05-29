@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  caddy:
+    build:
+      context: .
+      dockerfile: Dockerfile.caddy
+    volumes:
+      - .:/srv
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    expose:
+      - "8080"
+
+  browser-sync:
+    build:
+      context: .
+      dockerfile: Dockerfile.bs
+    ports:
+      - "3000:3000"
+    depends_on:
+      - caddy
+    volumes:
+      - .:/app
