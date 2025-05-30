@@ -31,6 +31,7 @@ const triggerPhrases = [
 let state = "off";
 let currentRecognizer = null;
 let currentAudio = null;
+let cancelRequested = false;
 const micBtn = document.getElementById("mic-btn");
 
 // === Utilities ===
@@ -84,6 +85,21 @@ const recognizeSpeech = (maxAlternatives = 5) =>
     r.start();
   });
 
+const listenForCancel = () =>
+  new Promise((resolve) => {
+    const r = new (window.SpeechRecognition ||
+      window.webkitSpeechRecognition)();
+    r.lang = "en-US";
+    r.interimResults = false;
+    r.maxAlternatives = 1;
+    r.onresult = (e) => {
+      const transcript = e.results[0][0].transcript.toLowerCase();
+      if (transcript.includes("cancel")) resolve(true);
+    };
+    r.onerror = () => resolve(false);
+    r.start();
+  });
+
 const sendToVoiceflow = async (message) => {
   const res = await fetch(VoiceFlowUrl, {
     method: "POST",
@@ -102,8 +118,19 @@ const sendToVoiceflow = async (message) => {
   return res.json();
 };
 
+const cancelPlayback = () => {
+  cancelRequested = true;
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.src = "";
+    currentAudio = null;
+  }
+};
+
 const playSpeakTraces = async (traces) => {
   for (const trace of traces) {
+    if (cancelRequested) break;
+
     if (trace.type === "text" && trace.payload?.audio?.src) {
       const audio = new Audio(trace.payload.audio.src);
       audio.preload = "auto";
@@ -111,18 +138,37 @@ const playSpeakTraces = async (traces) => {
 
       try {
         await audio.play();
+
         await new Promise((resolve) => {
+          const cancelCheck = () => {
+            if (cancelRequested) {
+              audio.pause();
+              audio.src = "";
+              currentAudio = null;
+              resolve();
+            } else {
+              requestAnimationFrame(cancelCheck);
+            }
+          };
+
           audio.onended = audio.onerror = () => {
             currentAudio = null;
             resolve();
           };
+
+          cancelCheck();
         });
+
+        if (cancelRequested) break;
       } catch (err) {
         console.warn("Audio playback failed:", err);
         currentAudio = null;
       }
     }
   }
+
+  cancelRequested = false;
+  currentAudio = null;
 };
 
 // === UI + State Transitions ===
@@ -190,7 +236,10 @@ const handleInteraction = async () => {
       console.log("💬 Command:", command);
       await transitionTo("on-response");
       const traces = await sendToVoiceflow(command);
-      await playSpeakTraces(traces);
+      await Promise.race([
+        playSpeakTraces(traces),
+        listenForCancel().then((cancelled) => cancelled && cancelPlayback()),
+      ]);
       await transitionTo("on-standby");
     }
   } catch (err) {
