@@ -1,4 +1,3 @@
-````markdown name=README.md
 # Pheonix
 
 > _Project Description_: **Pheonix is a voice-activated conversational assistant web app. The project provides a browser-based interface for users to interact via speech. Spoken commands are recognized in the browser, sent to a Node.js backend, and routed to the Voiceflow conversational AI API to generate responses, which are returned as spoken audio.**
@@ -104,4 +103,3 @@ Please use consistent code style and include tests if applicable.
 
 - **Owner**: https://github.com/ebsi-bblake
 - Open issues or PRs for questions or contributions
-````
