@@ -43,8 +43,14 @@ export const getAudioDuration = async (audioUrl) => {
   return estimatedSeconds;
 };
 
-const recognizeSpeech = () =>
-  new Promise((resolve, reject) => {
+const recognizeSpeech = () => {
+  if (chatState.get().recognizer) {
+    try {
+      chatState.get().recognizer.abort(); // force stop if one exists
+    } catch { }
+    chatState.set({ recognizer: null });
+  }
+  return new Promise((resolve, reject) => {
     stopMicKeepAlive();
     const r = new (window.SpeechRecognition ||
       window.webkitSpeechRecognition)();
@@ -58,8 +64,15 @@ const recognizeSpeech = () =>
       chatState.set({ recognizer: null });
       startMicKeepAlive();
     };
+    r.onaudiostart = () => console.log("🎤 audio start");
+    r.onaudioend = () => console.log("🎤 audio end");
+    r.onsoundstart = () => console.log("🔊 sound start");
+    r.onspeechstart = () => console.log("🗣️ speech start");
+    r.onspeechend = () => console.log("🛑 speech end");
+
     r.start();
   });
+};
 
 const waitForWakeWord = async () => {
   const triggerPhrases = [
@@ -97,6 +110,7 @@ const waitForWakeWord = async () => {
     phrases.some(
       (p) => levenshtein(input.trim().toLowerCase(), p) <= maxDistance,
     );
+  console.log("🧠 recognizer start", chatState.get().recognizer);
   const phrase = await recognizeSpeech().catch(() => "");
   return isFuzzyMatch(phrase, triggerPhrases) ? phrase : null;
 };
@@ -153,12 +167,20 @@ const sendCommandToBackend = (text) => {
   socket.emit("command", { userID: "ebsi_pheonix", text });
 };
 
+let lastWakeLoop = 0;
 const wakeLoop = async () => {
+  const now = Date.now();
+  if (now - lastWakeLoop < 500) return; // skip if too soon
+  lastWakeLoop = now;
+
+  console.log("🔁 wakeLoop() entered, current state:", dispatcher.getState());
+
   const trigger = await waitForWakeWord().catch(() => null);
   if (!trigger) {
     dispatcher.dispatch({ type: Events.START });
     return wakeLoop();
   }
+
   dispatcher.dispatch({ type: Events.WAKE });
   await listenForCommand();
   await wakeLoop();
@@ -176,6 +198,7 @@ const handleInteraction = async () => {
 };
 
 const listenForCommand = async () => {
+  console.log("🧠 recognizer start", chatState.get().recognizer);
   const command = await recognizeSpeech().catch(() => null);
   if (!command) {
     dispatcher.dispatch({ type: Events.ERROR });
@@ -254,11 +277,15 @@ const listenForCommand = async () => {
         console.log(`🎯 Expected duration: ${expectedDuration.toFixed(2)}s`);
 
         timeout = setTimeout(
-          () => {
+          async () => {
             const elapsed = (performance.now() - start) / 1000;
             console.warn(
               `⏳ Timeout: playback exceeded ${elapsed.toFixed(2)}s`,
             );
+            if (!chatState.get().cancelRequested) {
+              dispatcher.dispatch({ type: Events.FINISH });
+              await wakeLoop(); // ✅ resume listening
+            }
             safeResolve();
           },
           (expectedDuration + 1.5) * 1000,
