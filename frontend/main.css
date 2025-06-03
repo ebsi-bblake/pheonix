@@ -570,3 +570,18 @@ textarea {
         page-break-after: avoid;
     }
 }
+
+.directions {
+	color: rgba(255, 255, 255, 0.3);
+	    font-family: 'Montserrat';font-size: 18px;
+	width: 400px;
+	text-align: center;
+	padding-top: 50px;
+	
+}
+
+.prototype {
+	font-weight: bold;
+	font-size: 8px;
+	padding-top: 25px;
+}
