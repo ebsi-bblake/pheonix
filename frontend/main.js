@@ -231,8 +231,9 @@ const listenForCommand = async () => {
         if (!resolved) {
           resolved = true;
           clearTimeout(timeout);
-          chatState.set({ audio: null });
-          resolve();
+          cleanupPlayback();
+          await new Promise(requestAnimationFrame); // ensure sync break
+          resolvePlayback(); // resolves outer promise
         }
       };
 
