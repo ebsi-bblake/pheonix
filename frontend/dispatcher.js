@@ -1,19 +1,20 @@
 import { transition, States } from "./state.js";
 
-export const useDispatcher = (onStateChange) => {
-  let state = States.OFF;
+let state = States.OFF;
+let onChange = null;
 
-  const dispatch = (event) => {
-    const prevState = state;
-    const nextState = transition(prevState, event);
-    if (nextState !== prevState) {
-      state = nextState;
-      onStateChange?.(nextState, prevState, event);
+export const dispatcher = {
+  dispatch: (event) => {
+    const prev = state;
+    const next = transition(prev, event);
+    if (next !== prev) {
+      state = next;
+      onChange?.(next, prev, event);
     }
     return state;
-  };
-
-  const getState = () => state;
-
-  return { dispatch, getState };
+  },
+  getState: () => state,
+  setHook: (fn) => {
+    onChange = fn;
+  },
 };

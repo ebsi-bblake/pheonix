@@ -20,6 +20,7 @@ export const transition = (state, event) => {
     case States.OFF:
       return event.type === Events.START ? States.STANDBY : state;
     case States.STANDBY:
+      if (event.type === Events.ERROR) return States.OFF;
       return event.type === Events.WAKE ? States.LISTENING : state;
     case States.LISTENING:
       return event.type === Events.COMMAND ? States.RESPONSE : state;
@@ -33,11 +34,6 @@ export const transition = (state, event) => {
   }
 };
 
-export const StateMonoid = {
-  empty: States.OFF,
-  concat: (_, b) => b,
-};
-
 export const createChatState = () => {
   let state = {
     recognizer: null,
@@ -47,21 +43,19 @@ export const createChatState = () => {
     keepAliveContext: null,
   };
 
-  const set = (updates) => {
-    state = { ...state, ...updates };
+  return {
+    get: () => state,
+    set: (updates) => (state = { ...state, ...updates }),
+    reset: () => {
+      state = {
+        recognizer: null,
+        audio: null,
+        cancelRequested: false,
+        keepAliveStream: null,
+        keepAliveContext: null,
+      };
+    },
   };
-
-  const get = () => state;
-
-  const reset = () => {
-    state = {
-      recognizer: null,
-      audio: null,
-      cancelRequested: false,
-      keepAliveStream: null,
-      keepAliveContext: null,
-    };
-  };
-
-  return { set, get, reset };
 };
+
+export const chatState = createChatState();
