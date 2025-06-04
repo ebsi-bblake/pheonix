@@ -1,7 +1,16 @@
 import { chatState } from "./state.js";
 
 export const startMicKeepAlive = async () => {
-  if (chatState.get().keepAliveStream) return;
+  console.log("🎤 keeping mic alive...");
+  const isStreamActive = (stream) =>
+    stream?.getTracks().some((track) => track.readyState === "live");
+
+  if (
+    chatState.get().keepAliveStream &&
+    isStreamActive(chatState.get().keepAliveStream)
+  ) {
+    return;
+  }
 
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   const context = new AudioContext();
@@ -17,11 +26,11 @@ export const startMicKeepAlive = async () => {
   });
 };
 
-export const stopMicKeepAlive = () => {
+export const stopMicKeepAlive = async () => {
   const { keepAliveStream, keepAliveContext } = chatState.get();
 
   keepAliveStream?.getTracks().forEach((t) => t.stop());
-  keepAliveContext?.close();
+  if (keepAliveContext) await keepAliveContext.close();
 
   chatState.set({
     keepAliveStream: null,

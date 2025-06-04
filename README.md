@@ -1,13 +1,13 @@
 # Pheonix
 
->  Pheonix is a voice-activated conversational assistant web app. The project provides a browser-based interface for users to interact via speech. Spoken commands are recognized in the browser, sent to a Node.js backend, and routed to the Voiceflow conversational AI API to generate responses, which are returned as spoken audio.
+> Pheonix is a voice-activated conversational assistant web app. It provides a browser-based interface where users interact via speech. Commands are recognized in-browser, sent to a Node.js backend, and routed to the Voiceflow API for AI responses returned as audio and text.
 
 ## Table of Contents
 
-- [Overview](#pheonix)
+- [Overview](#overview)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Project-Structure](#project-structure)
+- [Project Structure](#project-structure)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
@@ -18,73 +18,87 @@ Ensure you have [Docker](https://www.docker.com/) and [Node.js](https://nodejs.o
 
 To install with Docker:
 
-    git clone https://github.com/ebsi-bblake/pheonix.git
-    cd pheonix
-    docker-compose up --build
+```bash
+git clone https://github.com/ebsi-bblake/pheonix.git
+cd pheonix
+docker-compose up --build
+```
 
 To install manually (backend only):
 
-    cd pheonix/backend
-    npm install
+```bash
+cd pheonix/backend
+npm install
+```
 
 ## Usage
 
 ### Docker-based workflow
 
-    docker-compose up
+```bash
+docker-compose up
+```
 
 ### Manual backend start
 
-    cd backend
-    npm run dev    # or: node server.js
+```bash
+cd backend
+npm run dev    # or: node server.js
+```
 
 ### Frontend (without Docker)
 
-Open `frontend/index.html` in a browser, or serve it via a static file server.
+Open `frontend/index.html` in a browser or serve it via a static file server.
 
 ## Project Structure
 
-    pheonix/
-    ├── backend/              # Node.js backend
-    │   ├── server.js         # Backend entry point (Express, Socket.IO, routes to Voiceflow API)
-    │   ├── package.json      # Dependencies
-    │   ├── Dockerfile        # Backend Docker config
-    │   └── node_modules/     # Installed dependencies
-    ├── frontend/             # Static frontend
-    │   ├── index.html        # HTML entry point
-    │   ├── main.js           # JS logic (speech recognition, UI, socket communication)
-    │   ├── main.css          # Styles (animated, voice UI inspired)
-    │   ├── dispatcher.js     # State/event system for UI state transitions
-    │   ├── state.js          # State machine for voice flow
-    │   ├── noop-processor.js # Audio worklet to keep microphone stream alive
-    │   └── images/           # Assets
-    ├── Caddyfile             # Caddy reverse proxy config
-    ├── docker-compose.yml    # Docker orchestration
-    ├── Dockerfile.caddy      # Caddy Docker config
-    ├── Dockerfile.bs         # BrowserSync Docker config
-    └── README.md             # Documentation
+```txt
+pheonix/
+├── backend/              # Node.js backend
+│   ├── server.js         # Express + WebSocket server (Voiceflow integration)
+│   ├── package.json      # Dependencies
+│   ├── Dockerfile        # Backend Docker config
+├── frontend/             # Static frontend (modular)
+│   ├── index.html        # HTML entry point
+│   ├── main.js           # App bootstrap: FSM loop, recognizer, socket
+│   ├── audio-player.js   # Audio playback with TTS duration and timeout
+│   ├── dispatcher.js     # FSM dispatcher (uses monoidal transition logic)
+│   ├── mic.js            # Audio keep-alive module
+│   ├── state.js          # Voice assistant runtime + FSM monoid
+│   ├── speech.js         # Wake/command recognition with fuzzy matching
+│   ├── ui.js             # DOM state toggling for active/listening/response
+│   ├── ws-client.js      # WebSocket communication module
+│   ├── main.css          # Styles for layout, transitions, mic animation
+│   ├── noop-processor.js # AudioWorkletNode to keep mic stream open
+│   └── images/           # UI assets
+├── Caddyfile             # Caddy reverse proxy config
+├── docker-compose.yml    # Docker orchestration
+├── Dockerfile.caddy      # Caddy container
+├── Dockerfile.bs         # BrowserSync container
+└── README.md             # This file
+```
 
 ## Overview
 
-Pheonix enables browser-based, voice-first interaction with a conversational AI by combining:
+Pheonix enables voice-first AI interaction entirely in the browser, powered by a modular frontend and WebSocket-based backend. It features:
 
-- **Frontend**: A minimal web page with a microphone button, animated UI, and scripts for:
-  - Wake word detection (e.g., "hey anthony", "hey empyrean", etc.)
-  - Speech recognition using the Web Speech API
-  - Sending recognized commands to the backend via Socket.IO
-  - Receiving spoken audio (TTS) and text responses from the backend
-  - State transitions for listening, processing, and playback
+- **Frontend**
+  - Wake word detection (e.g., "hey empyrean", "hey imperium", etc.)
+  - Browser-native speech recognition via Web Speech API
+  - State-driven flow (standby → listening → response)
+  - WebSocket-based command dispatch and TTS response handling
+  - Animated UI with mic control, dynamic text transcript
 
-- **Backend**: A Node.js Express server using Socket.IO:
-  - Receives commands from the frontend and proxies them to the Voiceflow API
-  - Handles API authentication via environment variables
-  - Returns TTS audio and text messages to the frontend for playback
+- **Backend**
+  - Node.js + WebSocket (via `ws`)
+  - Routes recognized user commands to the Voiceflow API
+  - Responds with TTS audio and text
+  - Environment-based Voiceflow authentication
 
-**Technologies & Frameworks:**
-- Node.js, Express, Socket.IO, node-fetch, dotenv, cors (backend)
-- Vanilla JS, Web Speech API, Socket.IO-client, AudioContext/AudioWorklet (frontend)
-- Docker & Docker Compose for local orchestration
-- Caddy for optional reverse proxy/static serving
+**Tech Stack:**
+- **Backend**: Node.js, Express, `ws`, node-fetch, dotenv, cors
+- **Frontend**: Vanilla JS modules, Web Speech API, AudioContext, WebSockets
+- **Infra**: Docker, Docker Compose, Caddy
 
 ## Contributing
 
@@ -93,11 +107,11 @@ Pheonix enables browser-based, voice-first interaction with a conversational AI 
 3. Commit your changes
 4. Push and open a pull request
 
-Please use consistent code style and include tests if applicable.
+Use consistent code style. Include tests or clear examples if relevant.
 
 ## License
 
-**[No license specified — add a LICENSE file or clarify usage terms here]**
+**[No license specified — please add a LICENSE file or clarify usage terms]**
 
 ## Contact
 

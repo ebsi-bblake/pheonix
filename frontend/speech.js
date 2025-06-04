@@ -13,7 +13,7 @@ export const recognizeSpeech = () => {
 
   console.log("🎤 [recognizeSpeech] starting...", chatState.get());
 
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     const r = new (window.SpeechRecognition ||
       window.webkitSpeechRecognition)();
     r.lang = "en-US";
@@ -25,13 +25,14 @@ export const recognizeSpeech = () => {
     r.onspeechstart = () => console.log("🗣️ speech start");
     r.onspeechend = () => console.log("🛑 speech end");
     r.onaudioend = () => console.log("🎤 audio end");
+    r.onnomatch = () => console.warn("🤷 Speech not recognized (onnomatch)");
     r.onresult = (e) => {
       const text = e.results[0][0].transcript.toLowerCase();
       console.log("📥 onresult:", text);
       resolve(text);
     };
     r.onerror = (e) => {
-      if (e.error === "aborted") {
+      if (["aborted", "no-speech"].includes(e.error)) {
         console.log("⏹️ recognizer aborted");
       } else {
         console.error("❌ onerror", e);
@@ -40,12 +41,16 @@ export const recognizeSpeech = () => {
     };
     r.onend = () => {
       console.log("🔚 onend");
-      chatState.set({ recognizer: null });
+      chatState.set({
+        recognizer: null,
+        keepAliveStream: null,
+        keepAliveContext: null,
+      });
       startMicKeepAlive();
     };
 
     console.log("🧪 about to call recognizer.start()");
-    stopMicKeepAlive();
+    await stopMicKeepAlive();
     chatState.set({ recognizer: r });
     console.log("🧪 recognizer set, mic stopped");
 
@@ -100,7 +105,6 @@ export const waitForWakeWord = async () => {
 
   console.log("🧠 recognizer start", chatState.get().recognizer);
   const phrase = await recognizeSpeech().catch(() => "");
-  console.log("phrase", phrase);
   return isFuzzyMatch(phrase, triggerPhrases) ? phrase : null;
 };
 

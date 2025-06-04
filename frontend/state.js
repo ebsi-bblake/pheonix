@@ -34,28 +34,28 @@ export const transition = (state, event) => {
   }
 };
 
-export const createChatState = () => {
-  let state = {
+export const ChatStateMonoid = {
+  empty: {
     recognizer: null,
     audio: null,
     cancelRequested: false,
     keepAliveStream: null,
     keepAliveContext: null,
-  };
-
-  return {
-    get: () => state,
-    set: (updates) => (state = { ...state, ...updates }),
-    reset: () => {
-      state = {
-        recognizer: null,
-        audio: null,
-        cancelRequested: false,
-        keepAliveStream: null,
-        keepAliveContext: null,
-      };
-    },
-  };
+    wakeLoopLast: 0,
+    wakeLoopRunning: false,
+    playbackResolve: null,
+  },
+  concat: (a, b) => ({ ...a, ...b }),
 };
 
-export const chatState = createChatState();
+let currentState = ChatStateMonoid.empty;
+
+export const chatState = {
+  get: () => currentState,
+  set: (updates) => {
+    currentState = ChatStateMonoid.concat(currentState, updates);
+  },
+  reset: () => {
+    currentState = ChatStateMonoid.empty;
+  },
+};

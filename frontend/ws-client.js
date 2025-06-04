@@ -1,6 +1,5 @@
+import { chatState } from "./state.js";
 let socket;
-let playbackResolve = null;
-
 export const initSocket = (onResponse, onError) => {
   socket = new WebSocket("ws://localhost:3001");
 
@@ -22,7 +21,7 @@ export const initSocket = (onResponse, onError) => {
         el.textContent = text;
         document.getElementById("transcript")?.appendChild(el);
       }
-      onResponse?.(data, playbackResolve);
+      onResponse?.(data, chatState.get().playbackResolve?.());
     }
 
     if (event === "error") {
@@ -30,6 +29,7 @@ export const initSocket = (onResponse, onError) => {
       onError?.(data);
     }
   };
+  return Promise.resolve();
 };
 
 export const sendCommand = (userID, text) => {
@@ -40,6 +40,5 @@ export const sendCommand = (userID, text) => {
   }
 };
 
-export const setPlaybackResolver = (resolve) => {
-  playbackResolve = resolve;
-};
+export const setPlaybackResolver = (resolve) =>
+  chatState.set({ playbackResolve: resolve });
