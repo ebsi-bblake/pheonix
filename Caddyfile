@@ -30,8 +30,10 @@ handle_path /api/voiceflow/* {
     }
 }
 
-# Socket.IO proxy route to backend
-@socketio {
-    path /socket.io*
+# WebSocket proxy to backend (raw WS support)
+@websocket {
+    path /
+    header Connection *Upgrade*
+    header Upgrade websocket
 }
-reverse_proxy @socketio backend:3001
+reverse_proxy @websocket backend:3001

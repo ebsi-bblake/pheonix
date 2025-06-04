@@ -1,6 +1,6 @@
 import express from "express";
 import http from "http";
-import { Server } from "socket.io";
+import { WebSocketServer } from "ws";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -9,7 +9,7 @@ dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+const wss = new WebSocketServer({ server });
 
 const VOICEFLOW_API_KEY = process.env.VOICEFLOW_API_KEY;
 const VOICEFLOW_BASE_URL = "https://general-runtime.voiceflow.com";
@@ -17,55 +17,78 @@ const VOICEFLOW_BASE_URL = "https://general-runtime.voiceflow.com";
 app.use(cors());
 app.use(express.json());
 
-io.on("connection", (socket) => {
-  console.log(`🔌 Connected: ${socket.id}`);
+//health checks
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
 
-  socket.on("command", async ({ userID, text }) => {
-    console.log(`📨 Command from ${userID}:`, text);
+// WebSocket logic
+wss.on("connection", (ws) => {
+  console.log("🔌 Client connected");
+
+  ws.on("message", async (message) => {
     try {
-      const payload = {
-        action: { type: "text", payload: text },
-        config: {
-          tts: true,
-          stripSSML: true,
-          stopAll: false,
-          excludeTypes: ["block", "debug", "flow"],
-        },
-      };
+      const { event, data } = JSON.parse(message);
 
-      const res = await fetch(
-        `${VOICEFLOW_BASE_URL}/state/user/${userID}/interact`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: VOICEFLOW_API_KEY,
-            "Content-Type": "application/json",
-            versionID: "production",
+      if (event === "command") {
+        const { userID, text } = data;
+        console.log(`📨 Command from ${userID}:`, text);
+
+        const payload = {
+          action: { type: "text", payload: text },
+          config: {
+            tts: true,
+            stripSSML: true,
+            stopAll: false,
+            excludeTypes: ["block", "debug", "flow"],
           },
-          body: JSON.stringify(payload),
-        },
-      );
+        };
 
-      const traces = await res.json();
-      console.log(Object.keys(traces[0].payload.audio));
-      const audio = traces.find((t) => t.payload?.audio?.src);
-      const message = traces.find((t) => t.type === "text");
-      socket.emit("response", {
-        audioUrl: audio?.payload?.audio?.src || null,
-        text: message?.payload?.message || null,
-      });
+        const res = await fetch(
+          `${VOICEFLOW_BASE_URL}/state/user/${userID}/interact`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: VOICEFLOW_API_KEY,
+              "Content-Type": "application/json",
+              versionID: "production",
+            },
+            body: JSON.stringify(payload),
+          },
+        );
+
+        const traces = await res.json();
+        const audio = traces.find((t) => t.payload?.audio?.src);
+        const messageTrace = traces.find((t) => t.type === "text");
+
+        ws.send(
+          JSON.stringify({
+            event: "response",
+            data: {
+              audioUrl: audio?.payload?.audio?.src || null,
+              text: messageTrace?.payload?.message || null,
+            },
+          }),
+        );
+      }
+
+      if (event === "cancel") {
+        console.log("🛑 Cancel received");
+        // Implement cancel logic if needed
+      }
     } catch (err) {
-      console.error("❌ Error handling command:", err);
-      socket.emit("error", "Backend failed to process command");
+      console.error("❌ Error handling message:", err);
+      ws.send(
+        JSON.stringify({
+          event: "error",
+          data: "Backend failed to process command",
+        }),
+      );
     }
-  });
-
-  socket.on("cancel", () => {
-    console.log(`🛑 Cancel from ${socket.id}`);
-    // Optional: track sessions or cancel audio
   });
 });
 
+// Start server
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`🚀 Backend running at http://localhost:${PORT}`);

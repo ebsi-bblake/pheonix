@@ -1,10 +1,109 @@
 import { useDispatcher } from "./dispatcher.js";
 import { Events, States, createChatState } from "./state.js";
 
-const socket = io();
-socket.on("connect", () => {
-  console.log("✅ Connected to backend with ID:", socket.id);
-});
+const socket = new WebSocket("ws://localhost:3001");
+let playbackResolve = null;
+socket.onmessage = async (e) => {
+  const { event, data } = JSON.parse(e.data);
+
+  if (event === "response") {
+    const { audioUrl, text } = data;
+    console.log("🎧 Got response:", { audioUrl, text });
+
+    if (!audioUrl || chatState.get().cancelRequested) {
+      console.warn("⚠️ No audio or cancel requested.");
+      await wakeLoop();
+      return playbackResolve?.();
+    }
+
+    const audio = new Audio(audioUrl);
+    chatState.set({ audio });
+
+    let resolved = false;
+    let timeout;
+    const start = performance.now();
+
+    const safeResolve = async () => {
+      if (!resolved) {
+        resolved = true;
+        clearTimeout(timeout);
+        chatState.set({ audio: null });
+        await new Promise(requestAnimationFrame);
+        playbackResolve?.();
+      }
+    };
+
+    const attachHandlers = () => {
+      audio.onended = async () => {
+        const actual = (performance.now() - start) / 1000;
+        console.log(`🟢 Audio ended after ${actual.toFixed(2)}s`);
+
+        if (!chatState.get().cancelRequested) {
+          dispatcher.dispatch({ type: Events.FINISH });
+          await wakeLoop();
+        }
+
+        safeResolve();
+      };
+
+      audio.onerror = async (e) => {
+        console.warn("⚠️ Audio playback failed:", e);
+        await wakeLoop();
+        safeResolve();
+      };
+    };
+
+    try {
+      console.log("▶️ Playing audio...");
+      await audio.play();
+      attachHandlers();
+
+      const waitForMetadata = new Promise((res) => {
+        audio.onloadedmetadata = res;
+        setTimeout(res, 500);
+      });
+
+      await waitForMetadata;
+
+      const expectedDuration =
+        isFinite(audio.duration) && audio.duration > 0
+          ? audio.duration
+          : estimateAudioDurationFromBase64(audioUrl);
+
+      timeout = setTimeout(
+        async () => {
+          const elapsed = (performance.now() - start) / 1000;
+          console.warn(`⏳ Timeout: playback exceeded ${elapsed.toFixed(2)}s`);
+          if (!chatState.get().cancelRequested) {
+            dispatcher.dispatch({ type: Events.FINISH });
+            await wakeLoop();
+          }
+          safeResolve();
+        },
+        (expectedDuration + 1.5) * 1000,
+      );
+    } catch (err) {
+      console.warn("🚫 audio.play() threw:", err);
+      await wakeLoop();
+      safeResolve();
+    }
+  }
+
+  if (event === "error") {
+    console.error("⚠️ Backend error:", data);
+  }
+};
+socket.onopen = () => {
+  console.log("✅ WebSocket connected");
+};
+
+socket.onclose = () => {
+  console.warn("❌ WebSocket disconnected");
+};
+
+socket.onerror = (err) => {
+  console.error("⚠️ WebSocket error:", err);
+};
 
 const micBtn = document.getElementById("mic-btn");
 const chatState = createChatState();
@@ -164,7 +263,16 @@ const stopMicKeepAlive = () => {
 };
 
 const sendCommandToBackend = (text) => {
-  socket.emit("command", { userID: "ebsi_pheonix", text });
+  if (socket.readyState === WebSocket.OPEN) {
+    socket.send(
+      JSON.stringify({
+        event: "command",
+        data: { userID: "ebsi_pheonix", text },
+      }),
+    );
+  } else {
+    console.warn("WebSocket is not open");
+  }
 };
 
 let lastWakeLoop = 0;
@@ -207,96 +315,8 @@ const listenForCommand = async () => {
 
   dispatcher.dispatch({ type: Events.COMMAND });
 
-  let playbackResolve;
   const playback = new Promise((resolve) => {
     playbackResolve = resolve;
-
-    socket.once("response", async ({ audioUrl, text }) => {
-      console.log("🎧 Got response:", { audioUrl, text });
-
-      if (!audioUrl || chatState.get().cancelRequested) {
-        console.warn("⚠️ No audio or cancel requested.");
-        await wakeLoop();
-        return resolve();
-      }
-
-      const audio = new Audio(audioUrl);
-      chatState.set({ audio });
-
-      let resolved = false;
-      let timeout;
-      const start = performance.now();
-
-      const safeResolve = async () => {
-        if (!resolved) {
-          resolved = true;
-          clearTimeout(timeout);
-          cleanupPlayback();
-          await new Promise(requestAnimationFrame); // ensure sync break
-          resolvePlayback(); // resolves outer promise
-        }
-      };
-
-      const attachHandlers = () => {
-        audio.onended = async () => {
-          const actual = (performance.now() - start) / 1000;
-          console.log(`🟢 Audio ended after ${actual.toFixed(2)}s`);
-
-          if (!chatState.get().cancelRequested) {
-            dispatcher.dispatch({ type: Events.FINISH });
-            await wakeLoop(); // ✅ resume listening
-          }
-
-          safeResolve();
-        };
-
-        audio.onerror = async (e) => {
-          console.warn("⚠️ Audio playback failed:", e);
-          await wakeLoop();
-          safeResolve();
-        };
-      };
-
-      try {
-        console.log("▶️ Playing audio...");
-        await audio.play();
-
-        attachHandlers();
-
-        const waitForMetadata = new Promise((res) => {
-          audio.onloadedmetadata = res;
-          setTimeout(res, 500); // fallback in case metadata doesn’t load
-        });
-
-        await waitForMetadata;
-
-        const expectedDuration =
-          isFinite(audio.duration) && audio.duration > 0
-            ? audio.duration
-            : estimateAudioDurationFromBase64(audioUrl);
-
-        console.log(`🎯 Expected duration: ${expectedDuration.toFixed(2)}s`);
-
-        timeout = setTimeout(
-          async () => {
-            const elapsed = (performance.now() - start) / 1000;
-            console.warn(
-              `⏳ Timeout: playback exceeded ${elapsed.toFixed(2)}s`,
-            );
-            if (!chatState.get().cancelRequested) {
-              dispatcher.dispatch({ type: Events.FINISH });
-              await wakeLoop(); // ✅ resume listening
-            }
-            safeResolve();
-          },
-          (expectedDuration + 1.5) * 1000,
-        );
-      } catch (err) {
-        console.warn("🚫 audio.play() threw:", err);
-        await wakeLoop();
-        safeResolve();
-      }
-    });
   });
 
   sendCommandToBackend(command);
@@ -311,11 +331,6 @@ const listenForCommand = async () => {
       }
     }),
   ]);
-
-  // if (!chatState.get().cancelRequested) {
-  //   dispatcher.dispatch({ type: Events.FINISH });
-  //   await wakeLoop();
-  // }
 
   chatState.set({ cancelRequested: false });
 };
