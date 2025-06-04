@@ -139,7 +139,9 @@ export const start = () => {
 
     if (dispatcher.getState() !== States.OFF) {
       console.log("🔕 Turning off voice assistant");
-      dispatcher.dispatch({ type: Events.ERROR });
+      dispatcher.dispatch({ type: Events.EXIT });
+      await stopMicKeepAlive();
+      chatState.reset();
 
       if (dispatcher.getState() === States.RESPONSE) {
         const recognizer = chatState.get().recognizer;

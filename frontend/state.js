@@ -13,6 +13,7 @@ export const Events = {
   CANCEL: "Cancel",
   ERROR: "Error",
   FINISH: "Finish",
+  EXIT: "Exit",
 };
 
 export const transition = (state, event) => {
@@ -20,14 +21,16 @@ export const transition = (state, event) => {
     case States.OFF:
       return event.type === Events.START ? States.STANDBY : state;
     case States.STANDBY:
-      if (event.type === Events.ERROR) return States.OFF;
-      return event.type === Events.WAKE ? States.LISTENING : state;
+      if (event.type === Events.WAKE) return States.LISTENING;
+      if (event.type === Events.EXIT) return States.OFF;
+      return state;
     case States.LISTENING:
       return event.type === Events.COMMAND ? States.RESPONSE : state;
     case States.RESPONSE:
       if (event.type === Events.CANCEL) return States.STANDBY;
       if (event.type === Events.FINISH) return States.STANDBY;
       if (event.type === Events.ERROR) return States.OFF;
+      if (event.type === Events.EXIT) return States.OFF;
       return state;
     default:
       return state;
