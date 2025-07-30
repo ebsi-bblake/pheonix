@@ -20,7 +20,7 @@ export const playAudio = async (audioUrl, cancelRequested) => {
   const attachHandlers = () => {
     audio.onended = async () => {
       const actual = (performance.now() - start) / 1000;
-      console.log(`🟢 Audio ended after ${actual.toFixed(2)}s`);
+      console.info(`🟢 Audio ended after ${actual.toFixed(2)}s`);
       if (!chatState.get().cancelRequested) {
         dispatcher.dispatch({ type: Events.FINISH });
       }
@@ -43,7 +43,7 @@ export const playAudio = async (audioUrl, cancelRequested) => {
     }
 
     try {
-      console.log("▶️ Playing audio...");
+      console.info("▶️ Playing audio...");
       await audio.play();
 
       attachHandlers();
@@ -60,7 +60,7 @@ export const playAudio = async (audioUrl, cancelRequested) => {
           ? audio.duration
           : estimateAudioDurationFromBase64(audioUrl);
 
-      console.log("🎯 estimated duration:", duration);
+      console.info("🎯 estimated duration:", duration);
 
       timeout = setTimeout(
         async () => {

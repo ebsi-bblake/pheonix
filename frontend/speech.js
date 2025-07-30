@@ -15,28 +15,29 @@ export const startBufferedRecognition = () => {
       window.webkitSpeechRecognition)();
     recognizer.lang = "en-US";
     recognizer.interimResults = true;
+    recognizer.continuous = true;
     recognizer.maxAlternatives = 1;
 
     interimTranscript = "";
 
-    recognizer.onstart = () => console.log("🎤 audio start");
-    recognizer.onaudiostart = () => console.log("🔊 sound start");
-    recognizer.onspeechstart = () => console.log("🗣️ speech start");
-    recognizer.onspeechend = () => console.log("🛑 speech end");
-    recognizer.onaudioend = () => console.log("🎤 audio end");
+    recognizer.onstart = () => console.info("🎤 audio start");
+    recognizer.onaudiostart = () => console.info("🔊 sound start");
+    recognizer.onspeechstart = () => console.info("🗣️ speech start");
+    recognizer.onspeechend = () => console.info("🛑 speech end");
+    recognizer.onaudioend = () => console.info("🎤 audio end");
 
     recognizer.onresult = (e) => {
       interimTranscript = "";
       for (let i = 0; i < e.results.length; i++) {
         interimTranscript += e.results[i][0].transcript;
       }
-      console.log("🎙 Interim transcript:", interimTranscript);
+      console.info("🎙 Interim transcript:", interimTranscript);
       // We do not resolve here, but wait for stopRecognition()
     };
 
     recognizer.onerror = (e) => {
       if (["aborted", "no-speech"].includes(e.error)) {
-        console.log("⏹️ recognizer aborted");
+        console.info("⏹️ recognizer aborted");
       } else {
         console.error("❌ onerror", e);
       }
@@ -44,7 +45,7 @@ export const startBufferedRecognition = () => {
     };
 
     recognizer.onend = () => {
-      console.log("🔚 recognizer ended");
+      console.info("🔚 recognizer ended");
       recognizer = null;
     };
 
@@ -52,7 +53,7 @@ export const startBufferedRecognition = () => {
 
     try {
       recognizer.start();
-      console.log("🔁 recognizer.start() called");
+      console.info("🔁 recognizer.start() called");
     } catch (err) {
       console.error("❌ recognizer.start() threw", err);
       reject(err);
@@ -79,7 +80,7 @@ export const stopRecognition = () => {
 
     try {
       recognizer.stop();
-      console.log("🛑 recognizer stopped");
+      console.warn("🛑 recognizer stopped");
     } catch {
       if (recognizer) {
         recognizer.removeEventListener("end", onEndHandler);
@@ -112,7 +113,7 @@ export const abortRecognition = () => {
   if (recognizer) {
     try {
       recognizer.abort();
-      console.log("🛑 Recognition manually aborted");
+      console.warn("🛑 Recognition manually aborted");
     } catch (err) {
       console.warn("⚠️ Error aborting recognizer:", err.message);
     }

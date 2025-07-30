@@ -35,20 +35,6 @@ app.use(cors());
 app.use(express.json());
 
 async function voiceflowInteract(userID, payload) {
-  console.log(
-    "▶️ Voiceflow Request URL:",
-    `${VOICEFLOW_BASE_URL}/state/user/${userID}/interact`,
-  );
-  console.log(
-    "▶️ Voiceflow Request Payload:",
-    JSON.stringify(payload, null, 2),
-  );
-  console.log("▶️ Voiceflow Request Headers:", {
-    Authorization: VOICEFLOW_API_KEY,
-    "Content-Type": "application/json",
-    versionID: "development",
-  });
-
   const res = await fetch(
     `${VOICEFLOW_BASE_URL}/state/user/${userID}/interact`,
     {
@@ -63,9 +49,6 @@ async function voiceflowInteract(userID, payload) {
   );
 
   const resText = await res.text();
-
-  console.log(`⬇️ Voiceflow Response Status: ${res.status} ${res.statusText}`);
-  console.log(`⬇️ Voiceflow Response Body: ${resText}`);
 
   if (!res.ok) {
     throw new Error(
@@ -106,7 +89,6 @@ wss.on("connection", async (ws) => {
       },
     };
     const traces = await voiceflowInteract(userID, launchPayload);
-    console.log("Launch traces:", traces);
     const audio = traces.find((t) => t.payload?.audio?.src);
     const messageTrace = traces.find((t) => t.type === "text");
 
@@ -169,7 +151,7 @@ wss.on("connection", async (ws) => {
           return;
         }
 
-        console.log(`📨 Command from ${userID}:`, text);
+        console.info(`📨 Command from ${userID}:`, text);
 
         try {
           const payload = {
@@ -182,8 +164,6 @@ wss.on("connection", async (ws) => {
             },
           };
           const traces = await voiceflowInteract(userID, payload);
-
-          console.log("Voiceflow response traces:", traces);
 
           const audio = traces.find((t) => t.payload?.audio?.src);
           const messageTrace = traces.find((t) => t.type === "text");
@@ -207,7 +187,7 @@ wss.on("connection", async (ws) => {
           );
         }
       } else if (event === "cancel") {
-        console.log("🛑 Cancel received");
+        console.warn("🛑 Cancel received");
         // Implement cancel logic here if needed
       } else {
         ws.send(
@@ -236,5 +216,5 @@ wss.on("connection", async (ws) => {
 // Start server
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
-  console.log(`🚀 Backend running at http://localhost:${PORT}`);
+  console.info(`🚀 Backend running at http://localhost:${PORT}`);
 });

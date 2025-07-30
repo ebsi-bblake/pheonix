@@ -73,3 +73,21 @@ export const sendCommand = async (userID, text) => {
 export const setPlaybackResolver = (resolve) => {
   chatState.set({ playbackResolve: resolve });
 };
+
+let spaceHeld = false;
+
+window.addEventListener("keydown", (e) => {
+  if (e.code === "Space" && !spaceHeld) {
+    e.preventDefault();
+    spaceHeld = true;
+    handleButtonPress();
+  }
+});
+
+window.addEventListener("keyup", (e) => {
+  if (e.code === "Space") {
+    e.preventDefault();
+    spaceHeld = false;
+    handleButtonRelease();
+  }
+});
