@@ -1,7 +1,6 @@
-import { dispatcher } from "./dispatcher.js";
-import { Events, chatState } from "./state.js";
+import { Events, chatState, dispatcher } from "./state.js";
 
-export const playAudio = async (audioUrl, cancelRequested, wakeLoop) => {
+export const playAudio = async (audioUrl, cancelRequested) => {
   const audio = new Audio(audioUrl);
   chatState.set({ audio });
 
@@ -24,14 +23,13 @@ export const playAudio = async (audioUrl, cancelRequested, wakeLoop) => {
       console.log(`🟢 Audio ended after ${actual.toFixed(2)}s`);
       if (!chatState.get().cancelRequested) {
         dispatcher.dispatch({ type: Events.FINISH });
-        await wakeLoop();
       }
       await safeResolve();
     };
 
     audio.onerror = async (e) => {
       console.warn("⚠️ Audio playback failed:", e);
-      await wakeLoop();
+      dispatcher.dispatch({ type: Events.FINISH }); // still end cleanly
       await safeResolve();
     };
   };
@@ -40,7 +38,7 @@ export const playAudio = async (audioUrl, cancelRequested, wakeLoop) => {
     if (!audioUrl || cancelRequested) {
       console.warn("⚠️ No audio or cancel requested.");
       chatState.set({ cancelRequested: false });
-      await wakeLoop();
+      dispatcher.dispatch({ type: Events.FINISH });
       return resolve();
     }
 
@@ -52,7 +50,7 @@ export const playAudio = async (audioUrl, cancelRequested, wakeLoop) => {
 
       const waitForMetadata = new Promise((res) => {
         audio.onloadedmetadata = res;
-        setTimeout(res, 500); // Fallback if metadata doesn't load
+        setTimeout(res, 500);
       });
 
       await waitForMetadata;
@@ -69,17 +67,14 @@ export const playAudio = async (audioUrl, cancelRequested, wakeLoop) => {
           if (resolved) return;
           const elapsed = (performance.now() - start) / 1000;
           console.warn(`⏳ Timeout: playback exceeded ${elapsed.toFixed(2)}s`);
-          if (!chatState.get().cancelRequested) {
-            dispatcher.dispatch({ type: Events.FINISH });
-            await wakeLoop();
-          }
+          dispatcher.dispatch({ type: Events.FINISH });
           await safeResolve();
         },
         (duration + 1.5) * 1000,
       );
     } catch (err) {
       console.warn("🚫 audio.play() threw:", err);
-      await wakeLoop();
+      dispatcher.dispatch({ type: Events.FINISH });
       await safeResolve();
       resolve();
     }

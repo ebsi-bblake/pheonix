@@ -1,77 +1,92 @@
-import { States, Events, chatState } from "./state.js";
-import { dispatcher } from "./dispatcher.js";
-import { startMicKeepAlive, stopMicKeepAlive } from "./mic.js";
-import { recognizeSpeech, listenForCancel, waitForWakeWord } from "./speech.js";
+import { dispatcher, States, Events, chatState } from "./state.js";
+import {
+  startBufferedRecognition,
+  stopRecognition,
+  listenForCancel,
+  abortRecognition,
+} from "./speech.js";
 import { sendCommand, setPlaybackResolver } from "./ws-client.js";
+
+const micBtn = document.getElementById("mic-btn");
+
+export const start = () => {
+  if (!micBtn) {
+    console.warn("Mic button element not found");
+    return;
+  }
+
+  micBtn.addEventListener("click", micButtonHandler);
+  micBtn.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      micButtonHandler();
+    }
+  });
+};
+
+const micButtonHandler = async () => {
+  if (dispatcher.getState() !== States.OFF) {
+    dispatcher.dispatch({ type: Events.EXIT });
+    abortRecognition();
+    chatState.reset();
+    return;
+  }
+
+  try {
+    await navigator.mediaDevices.getUserMedia({ audio: true });
+    console.log("✅ Mic permission granted");
+    dispatcher.dispatch({ type: Events.START });
+  } catch (err) {
+    console.error("❌ Mic permission denied", err);
+  }
+};
 
 dispatcher.setHook((next, prev, event) => {
   console.log(`🔄 ${prev} → ${next} via ${event.type}`);
   updateUI(next);
 });
 
-const micBtn = document.getElementById("mic-btn");
-
 export const updateUI = (newState) => {
-  document.body.classList.toggle("listening", newState === States.LISTENING);
+  const body = document.body;
+  const card = document.querySelector(".card");
 
-  if (!micBtn) return;
+  body.classList.toggle("off", newState === States.OFF);
+  body.classList.toggle("standby", newState === States.STANDBY);
+  body.classList.toggle("listening", newState === States.LISTENING);
+  body.classList.toggle("response", newState === States.RESPONSE);
 
-  micBtn.classList.toggle(
+  if (!card) return;
+
+  card.classList.toggle(
     "active",
-    newState !== States.OFF && newState !== States.RESPONSE,
+    newState === States.LISTENING || newState === States.STANDBY,
   );
-  micBtn.classList.toggle("response", newState === States.RESPONSE);
+  card.classList.toggle("response", newState === States.RESPONSE);
 };
 
-// Central control loop — starts on wake and resumes after response
-export const wakeLoop = async () => {
-  if (chatState.get().cancelRequested) {
-    console.log("🚫 Skipping wakeLoop — cancel was requested");
-    chatState.set({ cancelRequested: false });
-    return;
-  }
+// USB button pressed → start buffering recognition
+export const handleButtonPress = async () => {
+  if (dispatcher.getState() !== States.STANDBY) return;
 
-  if (chatState.get().wakeLoopRunning) return;
-  if (dispatcher.getState() !== States.STANDBY) {
-    console.log("⏳ Skipping wakeLoop — not in standby");
-    return;
-  }
-
-  chatState.set({ wakeLoopRunning: true });
+  dispatcher.dispatch({ type: Events.PRESS });
 
   try {
-    const now = Date.now();
-    if (now - chatState.get().wakeLoopLast < 500) {
-      chatState.set({ wakeLoopRunning: false });
-      return;
-    }
-
-    chatState.set({ wakeLoopLast: now });
-
-    console.log("🔁 wakeLoop() entered, current state:", dispatcher.getState());
-
-    const trigger = await waitForWakeWord().catch(() => null);
-    if (!trigger) {
-      dispatcher.dispatch({ type: Events.START });
-      chatState.set({ wakeLoopRunning: false });
-      return wakeLoop(); // retry if not matched
-    }
-
-    dispatcher.dispatch({ type: Events.WAKE });
-    await listenForCommand();
-    await wakeLoop(); // continue listening
-  } finally {
-    chatState.set({ wakeLoopRunning: false });
+    await startBufferedRecognition();
+  } catch (err) {
+    console.warn("Recognition error:", err);
+    dispatcher.dispatch({ type: Events.FINISH });
   }
 };
 
-// Handles recognizer and fallback to cancel
-const listenForCommand = async () => {
-  console.log("🧠 recognizer start", chatState.get().recognizer);
-  const command = await recognizeSpeech().catch(() => null);
-  console.log("🎙️ user command:", command);
+// USB button released → stop recognition and process
+export const handleButtonRelease = async () => {
+  if (dispatcher.getState() !== States.LISTENING) return;
+
+  dispatcher.dispatch({ type: Events.RELEASE });
+
+  const command = await stopRecognition();
   if (!command) {
-    dispatcher.dispatch({ type: Events.ERROR });
+    dispatcher.dispatch({ type: Events.FINISH });
     return;
   }
 
@@ -81,84 +96,23 @@ const listenForCommand = async () => {
     setPlaybackResolver(resolve);
   });
 
-  sendCommand("ebsi_pheonix", command);
+  try {
+    await sendCommand("ebsi_pheonix", command);
+  } catch (err) {
+    console.error("Failed to send command:", err);
+    dispatcher.dispatch({ type: Events.FINISH });
+  }
 
   await Promise.race([
     awaitingResponseDone,
     listenForCancel().then(async (cancelled) => {
       if (cancelled) {
-        const { audio } = chatState.get();
-        if (audio) {
-          audio.pause();
-          audio.src = "";
-          chatState.set({ audio: null });
-        }
+        abortRecognition();
         chatState.set({ cancelRequested: true });
-        dispatcher.dispatch({ type: Events.CANCEL });
-        await wakeLoop();
+        dispatcher.dispatch({ type: Events.FINISH });
       }
     }),
   ]);
 
   chatState.set({ cancelRequested: false });
-};
-
-export const start = () => {
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      const r = chatState.get().recognizer;
-      if (r) {
-        console.warn("📵 Tab hidden: aborting recognizer");
-        try {
-          r.abort();
-        } catch { }
-        chatState.set({ recognizer: null });
-      }
-    } else {
-      const ctx = chatState.get().keepAliveContext;
-      if (ctx?.state === "suspended") {
-        ctx
-          .resume()
-          .then(() =>
-            console.log("🎛️ AudioContext resumed after tab visibility change"),
-          );
-      }
-    }
-  });
-
-  micBtn.addEventListener("click", async () => {
-    console.log("🎤 Mic clicked");
-
-    try {
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-      console.log("✅ Mic permission OK");
-    } catch (err) {
-      console.error("❌ Mic permission denied", err);
-      return;
-    }
-
-    if (dispatcher.getState() !== States.OFF) {
-      console.log("🔕 Turning off voice assistant");
-      dispatcher.dispatch({ type: Events.EXIT });
-      await stopMicKeepAlive();
-      chatState.reset();
-
-      if (dispatcher.getState() === States.RESPONSE) {
-        const recognizer = chatState.get().recognizer;
-        if (recognizer) {
-          try {
-            recognizer.abort();
-          } catch { }
-        }
-      }
-
-      await stopMicKeepAlive();
-      chatState.reset();
-      return;
-    }
-
-    dispatcher.dispatch({ type: Events.START });
-    await startMicKeepAlive();
-    await wakeLoop();
-  });
 };

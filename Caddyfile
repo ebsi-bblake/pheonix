@@ -1,7 +1,14 @@
 :8080
 
-root * /srv/frontend
-file_server
+# WebSocket proxy must come first
+@websocket {
+    header Connection *Upgrade*
+    header Upgrade websocket
+}
+
+handle @websocket {
+    reverse_proxy backend:3001
+}
 
 # Global CORS preflight handler
 @options {
@@ -15,25 +22,8 @@ handle @options {
     respond 204
 }
 
-# Voiceflow proxy route
-handle_path /api/voiceflow/* {
-    header Access-Control-Allow-Origin "*"
-    header Access-Control-Allow-Methods "GET, POST, OPTIONS"
-    header Access-Control-Allow-Headers "*"
-
-    uri strip_prefix /api/voiceflow
-    reverse_proxy https://general-runtime.voiceflow.com {
-        header_up Host general-runtime.voiceflow.com
-        header_up Authorization "{env.VOICEFLOW_API_KEY}"
-        header_up Origin ""
-        header_up Referer ""
-    }
+# Static frontend (fallback/default)
+handle {
+    root * /srv/frontend
+    file_server
 }
-
-# WebSocket proxy to backend (raw WS support)
-@websocket {
-    path /
-    header Connection *Upgrade*
-    header Upgrade websocket
-}
-reverse_proxy @websocket backend:3001

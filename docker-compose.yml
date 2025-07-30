@@ -9,7 +9,7 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - .env
+      - ./.env
 
   browser-sync:
     build:
@@ -21,14 +21,17 @@ services:
       - caddy
     volumes:
       - .:/app
-
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    volumes:
-      - ./backend:/app
-    env_file:
-      - ./backend/.env
-    ports:
-      - "3001:3001"
+  #
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./backend:/app
+  #   env_file:
+  #     - ./backend/.env
+  #   ports:
+  #     - "3001:3001"
+  #   privileged: true
+  #   devices:
+  #     - "/dev/bus/usb:/dev/bus/usb"

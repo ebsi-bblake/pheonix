@@ -1,17 +1,14 @@
 export const States = {
   OFF: "off",
-  STANDBY: "on-standby",
-  LISTENING: "on-listening",
-  RESPONSE: "on-response",
+  STANDBY: "standby",
+  LISTENING: "listening",
+  RESPONSE: "response",
 };
 
 export const Events = {
   START: "Start",
-  WAKE: "WakeHeard",
-  COMMAND: "CommandHeard",
-  RESPONSE: "ResponsePlaying",
-  CANCEL: "Cancel",
-  ERROR: "Error",
+  PRESS: "ButtonDown",
+  RELEASE: "ButtonUp",
   FINISH: "Finish",
   EXIT: "Exit",
 };
@@ -19,17 +16,17 @@ export const Events = {
 export const transition = (state, event) => {
   switch (state) {
     case States.OFF:
-      return event.type === Events.START ? States.STANDBY : state;
+      if (event.type === Events.START) return States.STANDBY;
+      return state;
     case States.STANDBY:
-      if (event.type === Events.WAKE) return States.LISTENING;
+      if (event.type === Events.PRESS) return States.LISTENING;
       if (event.type === Events.EXIT) return States.OFF;
       return state;
     case States.LISTENING:
-      return event.type === Events.COMMAND ? States.RESPONSE : state;
+      if (event.type === Events.RELEASE) return States.RESPONSE;
+      return state;
     case States.RESPONSE:
-      if (event.type === Events.CANCEL) return States.STANDBY;
       if (event.type === Events.FINISH) return States.STANDBY;
-      if (event.type === Events.ERROR) return States.OFF;
       if (event.type === Events.EXIT) return States.OFF;
       return state;
     default:
@@ -37,28 +34,43 @@ export const transition = (state, event) => {
   }
 };
 
+// FSM Dispatcher for UI state transitions
+let currentUIState = States.OFF;
+
+export const dispatcher = {
+  getState: () => currentUIState,
+  dispatch: (event) => {
+    const prev = currentUIState;
+    const next = transition(prev, event);
+    if (next !== prev) {
+      currentUIState = next;
+      dispatcher.onChange?.(next, prev, event);
+    }
+    return currentUIState;
+  },
+  setHook: (fn) => {
+    dispatcher.onChange = fn;
+  },
+};
+
+// Chat State: holds playback/chat info
 export const ChatStateMonoid = {
   empty: {
-    recognizer: null,
     audio: null,
     cancelRequested: false,
-    keepAliveStream: null,
-    keepAliveContext: null,
-    wakeLoopLast: 0,
-    wakeLoopRunning: false,
     playbackResolve: null,
   },
   concat: (a, b) => ({ ...a, ...b }),
 };
 
-let currentState = ChatStateMonoid.empty;
+let currentChatState = ChatStateMonoid.empty;
 
 export const chatState = {
-  get: () => currentState,
+  get: () => currentChatState,
   set: (updates) => {
-    currentState = ChatStateMonoid.concat(currentState, updates);
+    currentChatState = ChatStateMonoid.concat(currentChatState, updates);
   },
   reset: () => {
-    currentState = ChatStateMonoid.empty;
+    currentChatState = ChatStateMonoid.empty;
   },
 };
