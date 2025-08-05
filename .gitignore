@@ -1,1 +1,5 @@
 .env
+.envrc
+.direnv
+.DS_Store
+/node_modules
