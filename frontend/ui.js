@@ -7,6 +7,11 @@ import {
 } from "./speech.js";
 import { sendCommand, setPlaybackResolver } from "./ws-client.js";
 
+dispatcher.setHook((next, prev, event) => {
+  console.log(`🔄 ${prev} → ${next} via ${event.type}`);
+  updateUI(next);
+});
+
 const micBtn = document.getElementById("mic-btn");
 
 export const start = () => {
@@ -41,11 +46,6 @@ const micButtonHandler = async () => {
   }
 };
 
-dispatcher.setHook((next, prev, event) => {
-  console.log(`🔄 ${prev} → ${next} via ${event.type}`);
-  updateUI(next);
-});
-
 export const updateUI = (newState) => {
   const body = document.body;
   const card = document.querySelector(".card");
@@ -66,15 +66,37 @@ export const updateUI = (newState) => {
 
 // USB button pressed → start buffering recognition
 export const handleButtonPress = async () => {
-  if (dispatcher.getState() !== States.STANDBY) return;
+  const currentState = dispatcher.getState();
 
-  dispatcher.dispatch({ type: Events.PRESS });
+  if (currentState === States.RESPONSE || currentState === States.LISTENING) {
+    console.info("⏹️ Interrupting current activity");
 
-  try {
-    await startBufferedRecognition();
-  } catch (err) {
-    console.warn("Recognition error:", err);
+    abortRecognition();
+
+    const { audio, playbackResolve } = chatState.get();
+    if (audio) {
+      audio.pause();
+      audio.src = "";
+      chatState.set({ audio: null });
+      playbackResolve?.(); // explicitly resolve to prevent warnings
+    }
+
+    chatState.set({ cancelRequested: true });
     dispatcher.dispatch({ type: Events.FINISH });
+  }
+
+  if (dispatcher.getState() === States.STANDBY) {
+    dispatcher.dispatch({ type: Events.PRESS });
+    try {
+      await startBufferedRecognition();
+      chatState.set({
+        audio: null,
+        cancelRequested: false,
+      });
+    } catch (err) {
+      console.warn("Recognition error:", err);
+      dispatcher.dispatch({ type: Events.FINISH });
+    }
   }
 };
 
@@ -92,27 +114,26 @@ export const handleButtonRelease = async () => {
 
   dispatcher.dispatch({ type: Events.COMMAND });
 
+  // Set playback resolver explicitly here:
   const awaitingResponseDone = new Promise((resolve) => {
     setPlaybackResolver(resolve);
   });
 
   try {
     await sendCommand("ebsi_pheonix", command);
+    await Promise.race([
+      awaitingResponseDone,
+      listenForCancel().then(async (cancelled) => {
+        if (cancelled) {
+          abortRecognition();
+          chatState.set({ cancelRequested: true });
+        }
+      }),
+    ]);
   } catch (err) {
-    console.error("Failed to send command:", err);
+    console.error("Error sending command:", err);
+  } finally {
     dispatcher.dispatch({ type: Events.FINISH });
+    chatState.set({ cancelRequested: false });
   }
-
-  await Promise.race([
-    awaitingResponseDone,
-    listenForCancel().then(async (cancelled) => {
-      if (cancelled) {
-        abortRecognition();
-        chatState.set({ cancelRequested: true });
-        dispatcher.dispatch({ type: Events.FINISH });
-      }
-    }),
-  ]);
-
-  chatState.set({ cancelRequested: false });
 };
