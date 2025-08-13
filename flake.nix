@@ -17,45 +17,45 @@
               pkgs.python3
               pkgs.libusb1
             ];
-          shellHook = ''
+            shellHook = ''
               echo "Phoenix dev env for ${system} ready"
-
-              # Kill processes on exit
-              cleanup() {
-                echo "🛑 Stopping dev servers..."
-                kill $FRONTEND_PID $BACKEND_PID $CHROME_PID 2>/dev/null || true
-              }
-              trap cleanup EXIT
 
               # ── FRONTEND ──
               cd frontend
+
               if [ ! -d node_modules ]; then
-                echo "Installing frontend dependencies..."
-                npm install
+                echo "Installing local serve..."
+                npm install --save-dev serve
               fi
-              npx serve . -l 8080 &
-              FRONTEND_PID=$!
+
+              if lsof -i :8080 | grep LISTEN >/dev/null 2>&1; then
+                echo "Frontend already running at http://localhost:8080"
+                echo "Command: npx serve . -l 8080"
+              else
+                echo "Starting frontend server on http://localhost:8080"
+                npx serve . -l 8080 &
+                echo "Command: npx serve . -l 8080"
+              fi
+
               cd ..
 
               # ── BACKEND ──
               cd backend
+
               if [ ! -d node_modules ]; then
                 echo "Installing backend dependencies..."
                 npm install
               fi
-              node server.js &
-              BACKEND_PID=$!
-              cd ..
 
-              # ── CHROME KIOSK ──
-              echo "🚀 Launching Chrome in kiosk mode..."
-              if [[ "$system" == *darwin* ]]; then
-                /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
-                  --kiosk --app=http://localhost:8080 &
-              else
-                google-chrome --kiosk --app=http://localhost:8080 &
-              fi
-              CHROME_PID=$!
+              # if lsof -i :3001 | grep LISTEN >/dev/null 2>&1; then
+              #   echo "Backend already running at http://localhost:3001"
+              #   echo "Command: node server.js"
+              # else
+              #   echo "Starting backend server on http://localhost:3001"
+              #   node server.js &
+              #   echo "Command: node server.js"
+              # fi
+              #
             '';
           };
         });
