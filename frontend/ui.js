@@ -8,7 +8,7 @@ import {
 import { sendCommand, setPlaybackResolver } from "./ws-client.js";
 
 dispatcher.setHook((next, prev, event) => {
-  console.log(`🔄 ${prev} → ${next} via ${event.type}`);
+  console.info(`🔄 ${prev} → ${next} via ${event.type}`);
   updateUI(next);
 });
 
@@ -39,7 +39,7 @@ const micButtonHandler = async () => {
 
   try {
     await navigator.mediaDevices.getUserMedia({ audio: true });
-    console.log("✅ Mic permission granted");
+    console.info("✅ Mic permission granted");
     dispatcher.dispatch({ type: Events.START });
   } catch (err) {
     console.error("❌ Mic permission denied", err);
@@ -71,32 +71,30 @@ export const handleButtonPress = async () => {
   if (currentState === States.RESPONSE || currentState === States.LISTENING) {
     console.info("⏹️ Interrupting current activity");
 
+    // Kill any ongoing recognition
     abortRecognition();
 
-    const { audio, playbackResolve } = chatState.get();
-    if (audio) {
-      audio.pause();
-      audio.src = "";
-      chatState.set({ audio: null });
-      playbackResolve?.(); // explicitly resolve to prevent warnings
-    }
+    // Stop audio without dispatching FINISH
+    stopCurrentAudio();
 
+    // Mark we’re interrupting so playAudio won’t auto-FINISH prematurely
     chatState.set({ cancelRequested: true });
-    dispatcher.dispatch({ type: Events.FINISH });
+
+    // Do NOT dispatch FINISH here — we’re immediately starting a new listen
   }
 
-  if (dispatcher.getState() === States.STANDBY) {
+  // Start fresh listening only from STANDBY or after interruption
+  if (dispatcher.getState() !== States.LISTENING) {
     dispatcher.dispatch({ type: Events.PRESS });
-    try {
-      await startBufferedRecognition();
-      chatState.set({
-        audio: null,
-        cancelRequested: false,
-      });
-    } catch (err) {
-      console.warn("Recognition error:", err);
-      dispatcher.dispatch({ type: Events.FINISH });
-    }
+  }
+
+  try {
+    await startBufferedRecognition();
+    chatState.set({ cancelRequested: false });
+  } catch (err) {
+    console.warn("Recognition error:", err);
+    // If recognition can’t start, bounce back to standby
+    dispatcher.dispatch({ type: Events.FINISH });
   }
 };
 
@@ -133,7 +131,7 @@ export const handleButtonRelease = async () => {
   } catch (err) {
     console.error("Error sending command:", err);
   } finally {
-    dispatcher.dispatch({ type: Events.FINISH });
+    // dispatcher.dispatch({ type: Events.FINISH });
     chatState.set({ cancelRequested: false });
   }
 };

@@ -8,7 +8,7 @@ export const startBufferedRecognition = () => {
     if (recognizer) {
       try {
         recognizer.abort();
-      } catch {}
+      } catch { }
       recognizer = null;
     }
     recognizer = new (window.SpeechRecognition ||
@@ -98,7 +98,7 @@ export const listenForCancel = () =>
     r.interimResults = false;
     r.maxAlternatives = 1;
     r.onresult = (e) => {
-      console.log(e.results[0][0].transcript);
+      // console.log(e.results[0][0].transcript);
       const t = e.results[0][0].transcript.toLowerCase();
       if (t.includes("cancel")) {
         r.stop();

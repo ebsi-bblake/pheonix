@@ -5,6 +5,7 @@ export const playAudio = async (audioUrl, cancelRequested) => {
   chatState.set({ audio });
 
   let resolved = false;
+  let started = false; // <-- track if playback actually started
   let timeout;
   const start = performance.now();
 
@@ -20,39 +21,40 @@ export const playAudio = async (audioUrl, cancelRequested) => {
   const attachHandlers = () => {
     audio.onended = async () => {
       const actual = (performance.now() - start) / 1000;
-      console.info(`🟢 Audio ended after ${actual.toFixed(2)}s`);
-      if (!chatState.get().cancelRequested) {
-        dispatcher.dispatch({ type: Events.FINISH });
-      }
+      console.log(`🟢 Audio ended after ${actual.toFixed(2)}s`);
+      // Audio player is the single place that goes to FINISH
+      dispatcher.dispatch({ type: Events.FINISH });
       await safeResolve();
     };
 
     audio.onerror = async (e) => {
       console.warn("⚠️ Audio playback failed:", e);
-      dispatcher.dispatch({ type: Events.FINISH }); // still end cleanly
+      // Still end cleanly from here
+      dispatcher.dispatch({ type: Events.FINISH });
       await safeResolve();
     };
   };
 
   return new Promise(async (resolve) => {
+    // If no audio or we’re cancelling, just resolve quietly.
     if (!audioUrl || cancelRequested) {
-      console.warn("⚠️ No audio or cancel requested.");
-      chatState.set({ cancelRequested: false });
-      dispatcher.dispatch({ type: Events.FINISH });
+      console.warn("⚠️ No audio (or cancel requested) — skipping playback.");
+      await safeResolve(); // <-- do NOT dispatch FINISH here
       return resolve();
     }
 
     try {
-      console.info("▶️ Playing audio...");
+      console.log("▶️ Playing audio...");
       await audio.play();
+      started = true;
 
       attachHandlers();
 
+      // wait until metadata or a short fallback
       const waitForMetadata = new Promise((res) => {
         audio.onloadedmetadata = res;
         setTimeout(res, 500);
       });
-
       await waitForMetadata;
 
       const duration =
@@ -60,7 +62,7 @@ export const playAudio = async (audioUrl, cancelRequested) => {
           ? audio.duration
           : estimateAudioDurationFromBase64(audioUrl);
 
-      console.info("🎯 estimated duration:", duration);
+      console.log("🎯 estimated duration:", duration);
 
       timeout = setTimeout(
         async () => {
@@ -74,7 +76,8 @@ export const playAudio = async (audioUrl, cancelRequested) => {
       );
     } catch (err) {
       console.warn("🚫 audio.play() threw:", err);
-      dispatcher.dispatch({ type: Events.FINISH });
+      // If we never started, do NOT dispatch FINISH here
+      if (started) dispatcher.dispatch({ type: Events.FINISH });
       await safeResolve();
       resolve();
     }
@@ -82,7 +85,19 @@ export const playAudio = async (audioUrl, cancelRequested) => {
 };
 
 const estimateAudioDurationFromBase64 = (base64) => {
-  const content = base64.split(",")[1];
+  const content = base64.split(",")[1] || "";
   const estimatedBytes = (content.length * 3) / 4;
-  return estimatedBytes / 1000; // assume ~1KB/sec
+  return estimatedBytes / 1000; // naive ~1KB/sec
+};
+
+/** Call this when you need to interrupt current audio without flipping state */
+export const stopCurrentAudio = () => {
+  const { audio } = chatState.get();
+  if (audio) {
+    try {
+      audio.pause();
+      audio.src = "";
+    } catch { }
+    chatState.set({ audio: null });
+  }
 };
