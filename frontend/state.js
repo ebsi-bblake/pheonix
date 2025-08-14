@@ -28,6 +28,7 @@ export const transition = (state, event) => {
     case States.RESPONSE:
       if (event.type === Events.FINISH) return States.STANDBY;
       if (event.type === Events.EXIT) return States.OFF;
+      if (event.type === Events.PRESS) return States.LISTENING;
       return state;
     default:
       return state;
@@ -59,6 +60,7 @@ export const ChatStateMonoid = {
     audio: null,
     cancelRequested: false,
     playbackResolve: null,
+    playbackToken: 0,
   },
   concat: (a, b) => ({ ...a, ...b }),
 };

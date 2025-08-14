@@ -47,15 +47,15 @@
                 npm install
               fi
 
-              # if lsof -i :3001 | grep LISTEN >/dev/null 2>&1; then
-              #   echo "Backend already running at http://localhost:3001"
-              #   echo "Command: node server.js"
-              # else
-              #   echo "Starting backend server on http://localhost:3001"
-              #   node server.js &
-              #   echo "Command: node server.js"
-              # fi
-              #
+              if lsof -i :3001 | grep LISTEN >/dev/null 2>&1; then
+                echo "Backend already running at http://localhost:3001"
+                echo "Command: node server.js"
+              else
+                echo "Starting backend server on http://localhost:3001"
+                node server.js &
+                echo "Command: node server.js"
+              fi
+              cd ..
             '';
           };
         });

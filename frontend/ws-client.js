@@ -21,7 +21,7 @@ export const initSocket = (onResponse, onError) => {
     if (event === "response") {
       const { audioUrl, text } = data;
       console.info("🎧 Got response:", { audioUrl, text });
-
+      chatState.set({ cancelRequested: false });
       if (text) {
         const el = document.createElement("div");
         el.textContent = text;

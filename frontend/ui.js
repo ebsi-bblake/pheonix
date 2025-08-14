@@ -6,6 +6,7 @@ import {
   abortRecognition,
 } from "./speech.js";
 import { sendCommand, setPlaybackResolver } from "./ws-client.js";
+import { stopCurrentAudio } from "./audio-player.js";
 
 dispatcher.setHook((next, prev, event) => {
   console.info(`🔄 ${prev} → ${next} via ${event.type}`);
@@ -68,31 +69,23 @@ export const updateUI = (newState) => {
 export const handleButtonPress = async () => {
   const currentState = dispatcher.getState();
 
-  if (currentState === States.RESPONSE || currentState === States.LISTENING) {
-    console.info("⏹️ Interrupting current activity");
-
-    // Kill any ongoing recognition
+  if ([States.RESPONSE, States.LISTENING].includes(currentState)) {
+    console.warn("⏹️ Interrupting current activity");
     abortRecognition();
-
-    // Stop audio without dispatching FINISH
     stopCurrentAudio();
-
-    // Mark we’re interrupting so playAudio won’t auto-FINISH prematurely
     chatState.set({ cancelRequested: true });
-
-    // Do NOT dispatch FINISH here — we’re immediately starting a new listen
-  }
-
-  // Start fresh listening only from STANDBY or after interruption
-  if (dispatcher.getState() !== States.LISTENING) {
     dispatcher.dispatch({ type: Events.PRESS });
+  } else if (currentState === States.STANDBY) {
+    dispatcher.dispatch({ type: Events.PRESS });
+  } else {
+    return;
   }
 
   try {
     await startBufferedRecognition();
     chatState.set({ cancelRequested: false });
   } catch (err) {
-    console.warn("Recognition error:", err);
+    console.error("Recognition error:", err);
     // If recognition can’t start, bounce back to standby
     dispatcher.dispatch({ type: Events.FINISH });
   }
