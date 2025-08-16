@@ -1,3 +1,4 @@
+// backend/server.js
 import express from "express";
 import http from "http";
 import { WebSocketServer } from "ws";
@@ -7,213 +8,306 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import { startDelcomButtonWatcher } from "./delcom.js";
+import { createParser } from "eventsource-parser";
 
-// Emulate __dirname in ES modules:
+// __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// ── Env ──────────────────────────────────────────────────────────────────────
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
+const VOICEFLOW_API_KEY = process.env.VOICEFLOW_API_KEY;
+const VOICEFLOW_PROJECT_ID = process.env.VOICEFLOW_PROJECT_ID;
+const VOICEFLOW_BASE_URL = "https://general-runtime.empyrean.voiceflow.com";
+
+if (!VOICEFLOW_API_KEY) {
+  console.error("❌ Missing VOICEFLOW_API_KEY in .env");
+  process.exit(1);
+}
+if (!VOICEFLOW_PROJECT_ID) {
+  console.error("❌ Missing VOICEFLOW_PROJECT_ID in .env");
+  process.exit(1);
+}
+
+// ── App / WS ─────────────────────────────────────────────────────────────────
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
-const broadcast = (event, data = {}) => {
-  wss.clients.forEach((client) => {
-    if (client.readyState === client.OPEN) {
-      client.send(JSON.stringify({ event, data }));
-    }
-  });
-};
-
-startDelcomButtonWatcher(broadcast);
-
-const VOICEFLOW_API_KEY = process.env.VOICEFLOW_API_KEY;
-const VOICEFLOW_BASE_URL = "https://general-runtime.empyrean.voiceflow.com";
-
 app.use(cors());
 app.use(express.json());
 
-async function voiceflowInteract(userID, payload) {
-  const res = await fetch(
-    `${VOICEFLOW_BASE_URL}/state/user/${userID}/interact`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: VOICEFLOW_API_KEY,
-        "Content-Type": "application/json",
-        versionID: "development",
-      },
-      body: JSON.stringify(payload),
-    },
-  );
-
-  const resText = await res.text();
-
-  if (!res.ok) {
-    throw new Error(
-      `Voiceflow API error: ${res.status} ${res.statusText} ${resText}`,
-    );
-  }
-
+// ── Logging helpers ──────────────────────────────────────────────────────────
+const LOG_LEVEL = (process.env.LOG_LEVEL || "debug").toLowerCase();
+const levels = { error: 0, warn: 1, info: 2, debug: 3, trace: 4 };
+const can = (lvl) => levels[lvl] <= levels[LOG_LEVEL];
+const ts = () => new Date().toISOString().replace("T", " ").replace("Z", "");
+const log = {
+  error: (...a) => can("error") && console.error(`[${ts()}] ❌`, ...a),
+  warn: (...a) => can("warn") && console.warn(`[${ts()}] ⚠️`, ...a),
+  info: (...a) => can("info") && console.info(`[${ts()}] ℹ️`, ...a),
+  debug: (...a) => can("debug") && console.debug(`[${ts()}] 🐛`, ...a),
+  trace: (...a) => can("trace") && console.debug(`[${ts()}] 🔎`, ...a),
+};
+const safeSend = (ws, obj, tag = "") => {
   try {
-    return JSON.parse(resText);
-  } catch (parseErr) {
-    console.error("❌ Failed to parse Voiceflow JSON response", parseErr);
-    throw parseErr;
+    const json = JSON.stringify(obj);
+    const preview =
+      json.length > 300 ? json.slice(0, 300) + `… [${json.length}b]` : json;
+    log.debug(`WS → client ${tag ? "(" + tag + ")" : ""}:`, preview);
+    ws.send(json);
+  } catch (e) {
+    log.error("WS send failed:", e);
   }
+};
+
+// ── Delcom/keyboard broadcast → FE ───────────────────────────────────────────
+const broadcast = (event, data = {}) => {
+  wss.clients.forEach((client) => {
+    if (client.readyState === client.OPEN) {
+      safeSend(client, { event, data }, "broadcast");
+    }
+  });
+};
+startDelcomButtonWatcher(broadcast);
+
+// ── Streaming helper (SSE) ───────────────────────────────────────────────────
+async function voiceflowStreamInteract(userID, payload, { signal, onEvent }) {
+  // Project-scoped streaming endpoint (as requested)
+  const url = `${VOICEFLOW_BASE_URL}/v2/project/${VOICEFLOW_PROJECT_ID}/user/${userID}/interact/stream?audio_events=true&audio_encoding=audio%2Fpcm&completion_events=true`;
+
+  VOICEFLOW_API_KEY;
+  log.info("VF ▶ stream POST", url);
+  log.debug("VF ▶ headers", {
+    Authorization: `${VOICEFLOW_API_KEY}`,
+    Accept: "text/event-stream",
+  });
+  log.debug("VF ▶ payload", payload);
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: VOICEFLOW_API_KEY, // Voiceflow expects raw token value here
+      "Content-Type": "application/json",
+      Accept: "text/event-stream",
+    },
+    body: JSON.stringify(payload),
+    signal,
+  });
+
+  log.info("VF ◀ status", res.status, res.statusText);
+  log.debug("VF ◀ content-type", res.headers.get("content-type"));
+
+  if (!res.ok || !res.body) {
+    const txt = await res.text().catch(() => "");
+    throw new Error(`VF stream error: ${res.status} ${res.statusText} ${txt}`);
+  }
+
+  let sseCount = 0;
+  const parser = createParser({
+    onEvent(evt) {
+      if (evt.type !== "event") return;
+      let data = evt.data;
+      try {
+        data = data ? JSON.parse(data) : null;
+      } catch (e) {
+        log.error("WTF", e);
+        // keep raw string if JSON parse fails
+      }
+      onEvent?.({ event: evt.event || "message", id: evt.id, data });
+    },
+  });
+
+  const feed = (chunk) => {
+    if (!chunk) return;
+    const bytes = Buffer.isBuffer(chunk)
+      ? chunk.length
+      : Buffer.byteLength(String(chunk));
+    log.trace(`VF ◀ chunk ${bytes} bytes`);
+    parser.feed(typeof chunk === "string" ? chunk : chunk.toString("utf8"));
+  };
+
+  if (typeof res.body.getReader === "function") {
+    const reader = res.body.getReader();
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      feed(value);
+    }
+    log.debug(`VF ◀ stream ended (SSE events: ${sseCount})`);
+    return;
+  }
+
+  if (typeof res.body[Symbol.asyncIterator] === "function") {
+    for await (const chunk of res.body) feed(chunk);
+    log.debug(`VF ◀ stream ended (SSE events: ${sseCount})`);
+    return;
+  }
+
+  await new Promise((resolve, reject) => {
+    res.body.on("data", feed);
+    res.body.on("end", () => {
+      log.debug(`VF ◀ stream ended (SSE events: ${sseCount})`);
+      resolve();
+    });
+    res.body.on("error", (e) => {
+      log.error("VF ◀ stream error", e);
+      reject(e);
+    });
+    if (signal) {
+      const abort = () => {
+        log.warn("VF ◀ stream aborted by controller");
+        try {
+          res.body.destroy?.();
+        } catch {}
+        resolve();
+      };
+      if (signal.aborted) abort();
+      else signal.addEventListener("abort", abort, { once: true });
+    }
+  });
 }
 
-//health checks
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok" });
-});
+// ── Health ───────────────────────────────────────────────────────────────────
+app.get("/health", (_req, res) => res.status(200).json({ status: "ok" }));
 
-// WebSocket logic
+// Track one in-flight stream per client for barge-in
+const controllers = new Map(); // Map<WebSocket, AbortController>
+
+// ── WebSocket logic ──────────────────────────────────────────────────────────
 wss.on("connection", async (ws) => {
-  console.log("🔌 Client connected");
+  const cid = Math.random().toString(36).slice(2, 8);
+  log.info(`🔌 WS client connected [cid=${cid}]`);
+  const userID = "ebsi_pheonix";
 
-  const userID = "ebsi_pheonix"; // or generate per client/session
+  ws.on("close", () => {
+    log.info(`🔌 WS client closed [cid=${cid}]`);
+    controllers.get(ws)?.abort();
+    controllers.delete(ws);
+  });
 
-  // Send launch event on connect
-  try {
-    const launchPayload = {
-      action: {
-        type: "launch",
-      },
-      config: {
-        tts: false,
-        stripSSML: true,
-        stopAll: false,
-        excludeTypes: ["block", "debug", "flow"],
-      },
-    };
-    const traces = await voiceflowInteract(userID, launchPayload);
-    const audio = traces.find((t) => t.payload?.audio?.src);
-    const messageTrace = traces.find((t) => t.type === "text");
+  ws.on("error", (e) => log.warn(`WS error [cid=${cid}]`, e));
 
-    ws.send(
-      JSON.stringify({
-        event: "launch",
-        data: {
-          audioUrl: audio?.payload?.audio?.src || null,
-          text: messageTrace?.payload?.message || null,
-        },
-      }),
-    );
-  } catch (err) {
-    console.error("❌ Error sending launch event:", err);
-    ws.send(
-      JSON.stringify({
-        event: "error",
-        data: `Launch event failed: ${err.message}`,
-      }),
-    );
-  }
+  // Stream a launch immediately (no parsing here; FE decides what to render)
+  const launchCtrl = new AbortController();
+  controllers.set(ws, launchCtrl);
+  log.debug(`launch controller set [cid=${cid}]`);
 
-  ws.on("message", async (message) => {
-    try {
-      let parsed;
-      try {
-        parsed = JSON.parse(message);
-      } catch (jsonErr) {
-        console.error("❌ Invalid JSON received:", message, jsonErr);
-        ws.send(
-          JSON.stringify({
-            event: "error",
-            data: "Invalid JSON format",
-          }),
-        );
-        return;
-      }
-
-      const { event, data } = parsed;
-
-      if (!event) {
-        ws.send(
-          JSON.stringify({
-            event: "error",
-            data: "Missing event type",
-          }),
-        );
-        return;
-      }
-
-      if (event === "command") {
-        const { userID, text } = data || {};
-        if (!userID || !text) {
-          ws.send(
-            JSON.stringify({
-              event: "error",
-              data: "Missing userID or text in command data",
-            }),
-          );
-          return;
+  voiceflowStreamInteract(
+    userID,
+    { action: { type: "launch" } },
+    {
+      signal: launchCtrl.signal,
+      onEvent: ({ event: ev, id, data }) => {
+        if (ev === "trace") {
+          safeSend(ws, { event: "trace", id, data }, `cid=${cid}`);
+        } else if (ev === "end") {
+          safeSend(ws, { event: "responseDone" }, `cid=${cid}`);
+        } else {
+          safeSend(ws, { event: ev, id, data }, `cid=${cid}`);
         }
-
-        console.info(`📨 Command from ${userID}:`, text);
-
-        try {
-          const payload = {
-            action: { type: "text", payload: text },
-            config: {
-              tts: true,
-              stripSSML: true,
-              stopAll: false,
-              excludeTypes: ["block", "debug", "flow"],
-            },
-          };
-          const traces = await voiceflowInteract(userID, payload);
-
-          const audio = traces.find((t) => t.payload?.audio?.src);
-          const messageTrace = traces.find((t) => t.type === "text");
-
-          ws.send(
-            JSON.stringify({
-              event: "response",
-              data: {
-                audioUrl: audio?.payload?.audio?.src || null,
-                text: messageTrace?.payload?.message || null,
-              },
-            }),
-          );
-        } catch (err) {
-          console.error("❌ Voiceflow command error:", err);
-          ws.send(
-            JSON.stringify({
-              event: "error",
-              data: `Voiceflow command failed: ${err.message}`,
-            }),
-          );
-        }
-      } else if (event === "cancel") {
-        console.warn("🛑 Cancel received");
-        // Implement cancel logic here if needed
-      } else {
-        ws.send(
-          JSON.stringify({
-            event: "error",
-            data: `Unknown event type: ${event}`,
-          }),
-        );
-      }
-    } catch (err) {
-      console.error("❌ Unexpected error handling message:", err);
-      try {
-        ws.send(
-          JSON.stringify({
-            event: "error",
-            data: "Backend failed to process command due to internal error",
-          }),
-        );
-      } catch {
-        // Ignore send errors here
-      }
+      },
+    },
+  ).catch((err) => {
+    if (!launchCtrl.signal.aborted) {
+      log.error("launch stream error", err);
+      safeSend(
+        ws,
+        { event: "error", data: String(err.message || err) },
+        `cid=${cid}`,
+      );
     }
+  });
+
+  ws.on("message", async (raw) => {
+    log.debug(`WS ← client [cid=${cid}]`, raw?.toString?.().slice(0, 300));
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      safeSend(
+        ws,
+        { event: "error", data: "Invalid JSON format" },
+        `cid=${cid}`,
+      );
+      return;
+    }
+
+    const { event, data } = parsed || {};
+    if (!event) {
+      safeSend(
+        ws,
+        { event: "error", data: "Missing event type" },
+        `cid=${cid}`,
+      );
+      return;
+    }
+
+    if (event === "commandStream") {
+      const { userID: uid, text } = data || {};
+      if (!uid || !text) {
+        safeSend(
+          ws,
+          { event: "error", data: "Missing userID or text" },
+          `cid=${cid}`,
+        );
+        return;
+      }
+
+      // barge-in: abort previous stream for this client
+      log.info(`barge-in: aborting previous controller [cid=${cid}]`);
+      controllers.get(ws)?.abort();
+      const controller = new AbortController();
+      controllers.set(ws, controller);
+      log.debug(`new controller set [cid=${cid}]`);
+
+      try {
+        await voiceflowStreamInteract(
+          uid,
+          { action: { type: "text", payload: text } },
+          {
+            signal: controller.signal,
+            onEvent: ({ event: ev, id, data }) => {
+              if (ev === "trace") {
+                safeSend(ws, { event: "trace", id, data }, `cid=${cid}`);
+              } else if (ev === "end") {
+                safeSend(ws, { event: "responseDone" }, `cid=${cid}`);
+              } else {
+                safeSend(ws, { event: ev, id, data }, `cid=${cid}`);
+              }
+            },
+          },
+        );
+      } catch (err) {
+        if (controller.signal.aborted) return; // expected on barge-in
+        log.error("stream error", err);
+        safeSend(
+          ws,
+          { event: "error", data: String(err.message || err) },
+          `cid=${cid}`,
+        );
+      } finally {
+        if (controllers.get(ws) === controller) controllers.delete(ws);
+      }
+      return;
+    }
+
+    if (event === "cancel") {
+      log.info(`cancel requested [cid=${cid}]`);
+      controllers.get(ws)?.abort();
+      return;
+    }
+
+    safeSend(
+      ws,
+      { event: "error", data: `Unknown event type: ${event}` },
+      `cid=${cid}`,
+    );
   });
 });
 
-// Start server
+// ── Start server ─────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.info(`🚀 Backend running at http://localhost:${PORT}`);

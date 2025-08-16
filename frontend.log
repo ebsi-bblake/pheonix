@@ -1,0 +1,27 @@
+ INFO  Accepting connections at http://localhost:8080
+ HTTP  8/16/2025 3:23:30 PM ::1 GET /
+ HTTP  8/16/2025 3:23:30 PM ::1 Returned 200 in 17 ms
+ HTTP  8/16/2025 3:23:30 PM ::1 GET /main.css
+ HTTP  8/16/2025 3:23:30 PM ::1 GET /main.js
+ HTTP  8/16/2025 3:23:30 PM ::1 GET /images/Empyrean_HandSolo.png
+ HTTP  8/16/2025 3:23:30 PM ::1 GET /socket.io/socket.io.js
+ HTTP  8/16/2025 3:23:30 PM ::1 Returned 200 in 3 ms
+ HTTP  8/16/2025 3:23:30 PM ::1 Returned 200 in 9 ms
+ HTTP  8/16/2025 3:23:30 PM ::1 Returned 200 in 8 ms
+ HTTP  8/16/2025 3:23:30 PM ::1 Returned 404 in 10 ms
+ HTTP  8/16/2025 3:23:30 PM ::1 GET /.well-known/appspecific/com.chrome.devtools.json
+ HTTP  8/16/2025 3:23:30 PM ::1 Returned 404 in 1 ms
+ HTTP  8/16/2025 3:23:30 PM ::1 GET /images/Empyrean-AI.png
+ HTTP  8/16/2025 3:23:30 PM ::1 GET /ws-client.js
+ HTTP  8/16/2025 3:23:30 PM ::1 GET /audio-player.js
+ HTTP  8/16/2025 3:23:30 PM ::1 GET /ui.js
+ HTTP  8/16/2025 3:23:30 PM ::1 Returned 200 in 6 ms
+ HTTP  8/16/2025 3:23:30 PM ::1 Returned 200 in 9 ms
+ HTTP  8/16/2025 3:23:30 PM ::1 Returned 200 in 6 ms
+ HTTP  8/16/2025 3:23:30 PM ::1 Returned 200 in 7 ms
+ HTTP  8/16/2025 3:23:30 PM ::1 GET /state.js
+ HTTP  8/16/2025 3:23:30 PM ::1 GET /speech.js
+ HTTP  8/16/2025 3:23:30 PM ::1 Returned 200 in 4 ms
+ HTTP  8/16/2025 3:23:30 PM ::1 Returned 200 in 4 ms
+ HTTP  8/16/2025 3:23:30 PM ::1 GET /images/favicon-32x32.png
+ HTTP  8/16/2025 3:23:30 PM ::1 Returned 200 in 2 ms

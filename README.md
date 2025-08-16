@@ -1,119 +1,125 @@
-# Pheonix
+Phoenix
+-------
 
-> Pheonix is a voice-activated conversational assistant web app. It provides a browser-based interface where users interact via speech. Commands are recognized in-browser, sent to a Node.js backend, and routed to the Voiceflow API for AI responses returned as audio and text.
+Phoenix is a voice-activated conversational assistant web app. It provides a browser-based interface where users interact via speech. Commands are recognized in-browser, sent to a Node.js backend, and routed to the Voiceflow API for AI responses returned as audio and text.
 
-## Table of Contents
+Table of Contents
+-----------------
+- Overview
+- Installation
+- Usage
+  - Linux/macOS
+  - Windows
+- Project Structure
+- Development Environment
+- Contributing
+- License
+- Contact
 
-- [Overview](#overview)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
+Overview
+--------
+Phoenix enables voice-first AI interaction entirely in the browser, powered by a modular frontend and WebSocket-based backend. It features:
 
-## Installation
+Frontend:
+- Browser-native speech recognition (Web Speech API)
+- Finite State Machine (standby → listening → response)
+- WebSocket command dispatch and TTS playback
+- Animated UI with mic control and live transcript
 
-Ensure you have [Docker](https://www.docker.com/) and [Node.js](https://nodejs.org/) installed.
+Backend:
+- Node.js + Express + WebSocket (ws)
+- Routes user commands to the Voiceflow Streaming API
+- Responds with real-time TTS audio and text
+- Optional Delcom USB button or spacebar fallback
 
-To install with Docker:
+Tech Stack:
+- Backend: Node.js, Express, WebSockets, Voiceflow Streaming API
+- Frontend: Vanilla JS modules, Web Speech API, Audio API
+- Infra: Nix dev shell, cross-platform start/stop scripts
 
-```bash
-git clone https://github.com/ebsi-bblake/pheonix.git
-cd pheonix
-docker-compose up --build
-```
+Installation
+------------
+Clone the repo:
 
-To install manually (backend only):
+  git clone https://github.com/ebsi-bblake/pheonix.git
+  cd pheonix
 
-```bash
-cd pheonix/backend
-npm install
-```
+Backend setup:
 
-## Usage
+  cd backend
+  npm install
 
-### Docker-based workflow
+Frontend setup:
 
-```bash
-docker-compose up
-```
+  cd frontend
+  npm install --save-dev serve
 
-### Manual backend start
+Usage
+-----
+Linux/macOS:
 
-```bash
-cd backend
-npm run dev    # or: node server.js
-```
+  ./dev.sh start     # Start frontend (8080) and backend (3001)
+  ./dev.sh stop      # Stop both
+  ./dev.sh restart   # Restart both
+  ./dev.sh status    # Show status of processes
+  ./dev.sh logs      # Tail logs
 
-### Frontend (without Docker)
+Windows:
 
-Open `frontend/index.html` in a browser or serve it via a static file server.
+  powershell -File .\dev.ps1 start     # Start frontend + backend
+  powershell -File .\dev.ps1 stop      # Stop both
+  powershell -File .\dev.ps1 restart   # Restart both
+  powershell -File .\dev.ps1 status    # Show status
+  powershell -File .\dev.ps1 logs      # Tail logs
 
-## Project Structure
-
-```txt
+Project Structure
+-----------------
 pheonix/
 ├── backend/              # Node.js backend
-│   ├── server.js         # Express + WebSocket server (Voiceflow integration)
-│   ├── package.json      # Dependencies
-│   ├── Dockerfile        # Backend Docker config
-├── frontend/             # Static frontend (modular)
-│   ├── index.html        # HTML entry point
-│   ├── main.js           # App bootstrap: FSM loop, recognizer, socket
-│   ├── audio-player.js   # Audio playback with TTS duration and timeout
-│   ├── dispatcher.js     # FSM dispatcher (uses monoidal transition logic)
-│   ├── mic.js            # Audio keep-alive module
-│   ├── state.js          # Voice assistant runtime + FSM monoid
-│   ├── speech.js         # Wake/command recognition with fuzzy matching
-│   ├── ui.js             # DOM state toggling for active/listening/response
-│   ├── ws-client.js      # WebSocket communication module
-│   ├── main.css          # Styles for layout, transitions, mic animation
-│   ├── noop-processor.js # AudioWorkletNode to keep mic stream open
-│   └── images/           # UI assets
-├── Caddyfile             # Caddy reverse proxy config
-├── docker-compose.yml    # Docker orchestration
-├── Dockerfile.caddy      # Caddy container
-├── Dockerfile.bs         # BrowserSync container
+│   ├── server.js         # Express + WebSocket server (Voiceflow streaming)
+│   ├── delcom.js         # Delcom button integration (with keyboard fallback)
+│   └── package.json
+├── frontend/             # Static frontend (vanilla JS modules)
+│   ├── index.html
+│   ├── main.js
+│   ├── ws-client.js      # WebSocket client logic
+│   ├── speech.js         # Speech recognition wrapper
+│   ├── audio-player.js   # TTS playback
+│   ├── ui.js             # UI state transitions
+│   └── state.js          # FSM + runtime state
+├── dev.sh                # Linux/macOS start/stop script
+├── dev.ps1               # Windows PowerShell start/stop script
+├── default.nix           # Nix development environment
+├── flake.nix             # Flake config for devShell
 └── README.md             # This file
-```
 
-## Overview
+Development Environment
+-----------------------
+Phoenix provides a Nix flake (flake.nix) for consistent dev environments across Linux/macOS:
 
-Pheonix enables voice-first AI interaction entirely in the browser, powered by a modular frontend and WebSocket-based backend. It features:
+  nix develop
 
-- **Frontend**
-  - Wake word detection (e.g., "hey empyrean", "hey imperium", etc.)
-  - Browser-native speech recognition via Web Speech API
-  - State-driven flow (standby → listening → response)
-  - WebSocket-based command dispatch and TTS response handling
-  - Animated UI with mic control, dynamic text transcript
+The shell provides:
+- Node.js 20
+- Python3
+- libusb (for Delcom USB button support)
 
-- **Backend**
-  - Node.js + WebSocket (via `ws`)
-  - Routes recognized user commands to the Voiceflow API
-  - Responds with TTS audio and text
-  - Environment-based Voiceflow authentication
+On entering the shell you’ll see guidance to run ./dev.sh start.
 
-**Tech Stack:**
-- **Backend**: Node.js, Express, `ws`, node-fetch, dotenv, cors
-- **Frontend**: Vanilla JS modules, Web Speech API, AudioContext, WebSockets
-- **Infra**: Docker, Docker Compose, Caddy
-
-## Contributing
-
-1. Fork this repo
-2. Create a new branch (`git checkout -b feature/your-feature`)
-3. Commit your changes
+Contributing
+------------
+1. Fork the repo
+2. Create a new branch (git checkout -b feature/my-feature)
+3. Commit changes
 4. Push and open a pull request
 
-Use consistent code style. Include tests or clear examples if relevant.
+Maintain consistent code style and add tests/examples where useful.
 
-## License
+License
+-------
+[No license specified — please add a LICENSE file or clarify usage terms]
 
-**[No license specified — please add a LICENSE file or clarify usage terms]**
-
-## Contact
-
-- **Owner**: https://github.com/ebsi-bblake
-- Open issues or PRs for questions or contributions
+Contact
+-------
+Owner: Boaz Blake (https://github.com/ebsi-bblake)
+Open issues or PRs for questions or contributions

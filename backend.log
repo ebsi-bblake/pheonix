@@ -1,0 +1,27 @@
+⚠️ Delcom not found and no TTY available; keyboard fallback disabled. Backend will run without button events.
+🚀 Backend running at http://localhost:3001
+[2025-08-16 20:23:30.716] ℹ️ 🔌 WS client connected [cid=el28is]
+[2025-08-16 20:23:30.717] 🐛 launch controller set [cid=el28is]
+[2025-08-16 20:23:30.717] ℹ️ VF ▶ stream POST https://general-runtime.empyrean.voiceflow.com/v2/project/686fd8451568df4a12fdc02e/user/ebsi_pheonix/interact/stream?audio_events=true&audio_encoding=audio%2Fpcm&completion_events=true
+[2025-08-16 20:23:30.717] 🐛 VF ▶ headers {
+  Authorization: 'VF.DM.688a57333ef9f63be76f4725.xPVNCbGdyoJbcYPI',
+  Accept: 'text/event-stream'
+}
+[2025-08-16 20:23:30.718] 🐛 VF ▶ payload { action: { type: 'launch' } }
+[2025-08-16 20:23:31.475] ℹ️ VF ◀ status 200 OK
+[2025-08-16 20:23:31.478] 🐛 VF ◀ content-type text/event-stream
+[2025-08-16 20:23:33.503] 🐛 VF ◀ stream ended (SSE events: 0)
+[2025-08-16 20:23:46.682] 🐛 WS ← client [cid=el28is] {"event":"commandStream","data":{"userID":"ebsi_pheonix","text":"costco today that's actually clean house"}}
+[2025-08-16 20:23:46.682] ℹ️ barge-in: aborting previous controller [cid=el28is]
+[2025-08-16 20:23:46.682] 🐛 new controller set [cid=el28is]
+[2025-08-16 20:23:46.682] ℹ️ VF ▶ stream POST https://general-runtime.empyrean.voiceflow.com/v2/project/686fd8451568df4a12fdc02e/user/ebsi_pheonix/interact/stream?audio_events=true&audio_encoding=audio%2Fpcm&completion_events=true
+[2025-08-16 20:23:46.682] 🐛 VF ▶ headers {
+  Authorization: 'VF.DM.688a57333ef9f63be76f4725.xPVNCbGdyoJbcYPI',
+  Accept: 'text/event-stream'
+}
+[2025-08-16 20:23:46.683] 🐛 VF ▶ payload {
+  action: { type: 'text', payload: "costco today that's actually clean house" }
+}
+[2025-08-16 20:23:46.998] ℹ️ VF ◀ status 200 OK
+[2025-08-16 20:23:46.999] 🐛 VF ◀ content-type text/event-stream
+[2025-08-16 20:23:49.666] 🐛 VF ◀ stream ended (SSE events: 0)
