@@ -24,7 +24,7 @@ export const transition = (state, event) => {
       return state;
 
     case States.INITIALIZING:
-      if (event.type === Events.LAUNCHED) return States.STANDBY;
+      if (event.type === Events.LAUNCHED) return States.RESPONSE;
       if (event.type === Events.ERROR) return States.OFF;
       if (event.type === Events.EXIT) return States.OFF;
       return state;
