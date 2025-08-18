@@ -1,25 +1,55 @@
-/*! HTML5 Boilerplate v4.3.0 | MIT License | http://h5bp.com/ */
-
-/*
- * What follows is the result of much research on cross-browser styling.
- * Credit left inline and big thanks to Nicolas Gallagher, Jonathan Neal,
- * Kroc Camen, and the H5BP dev community and team.
- */
-
 /* ==========================================================================
-   Base styles: opinionated defaults
+   Voiceflow Audio Chatbot - Main Styles
+   Cleaned and optimized while preserving all functionality
    ========================================================================== */
 
+/* CSS Custom Properties */
+@property --rotate {
+  syntax: "<angle>";
+  initial-value: 132deg;
+  inherits: false;
+}
 
+:root {
+  --card-height: 70vh;
+  --card-width: 40%;
+  --primary-bg: #212534;
+  --card-bg: #191c29;
+  --rainbow-gradient: linear-gradient(45deg, #fb0094, #0000ff, #00ff00, #ffff00, #ff0000, #fb0094, #0000ff, #00ff00, #ffff00, #ff0000);
+  --listening-spectrum: linear-gradient(90deg, red, orange, yellow, lime, cyan, blue, violet, red);
+}
 
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 1em;
+  line-height: 1.4;
+  height: 100%;
+}
 
 body {
   margin: 0;
-  padding: 0;
-  background-color: #000;
-  border-color: #d50e0e;
+  padding: 2rem;
+  min-height: 100vh;
+  background: var(--primary-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  font-family: 'Montserrat', sans-serif;
+  position: relative;
+  overflow: hidden;
 }
 
+/* ==========================================================================
+   Listening State - Rainbow Border Effect
+   ========================================================================== */
 
 body::before {
   content: "";
@@ -33,24 +63,13 @@ body::before {
   opacity: 0;
   transition: opacity 0.4s ease;
   z-index: 9999;
-  background: linear-gradient(
-    90deg,
-    red,
-    orange,
-    yellow,
-    lime,
-    cyan,
-    blue,
-    violet,
-    red
-  );
+  background: var(--listening-spectrum);
   background-size: 400% 400%;
   mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   filter: blur(16px);
-  box-sizing: border-box;
 }
 
 body.listening::before {
@@ -59,216 +78,58 @@ body.listening::before {
 }
 
 @keyframes moveSpectrum {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-.content {
-  color: white;
-  font-size: 2rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-}
+/* ==========================================================================
+   Main Card Component
+   ========================================================================== */
 
-
-.block {
-  position: relative;
-  margin: auto 0;
-  width: 98%;
-  height: 800px;
-  background: linear-gradient(0deg, #000 0%, #070707 20.1%, #272727 100%);
-}
-
-.block:before, .block:after {
-  content: '';
-  position: absolute;
-  left: -2px;
-  top: -2px;
-  background: linear-gradient(45deg, #fb0094, #0000ff, #00ff00,#ffff00, #ff0000, #fb0094, 
-    #0000ff, #00ff00,#ffff00, #ff0000);
-  background-size: 600%;
-  width: calc(100% + 1px);
-  height: calc(100% + 1px);
-  z-index: -1;
-  animation: steam 80s linear infinite;
-}
-
-@keyframes steam {
-  0% {
-    background-position: 0 0;
-  }
-  50% {
-    background-position: 400% 0;
-  }
-  100% {
-    background-position: 0 0;
-  }
-}
-
-.block:after {
-  filter: blur(50px);
-}
-
-
-html,
-button,
-input,
-select,
-textarea {
-    color: #000000;
-}
-
-html {
-    font-size: 1em;
-    line-height: 1.4;
-}
-
-/*
- * Remove text-shadow in selection highlight: h5bp.com/i
- * These selection rule sets have to be separate.
- * Customize the background color to match your design.
- */
-
-::-moz-selection {
-    background: #b3d4fc;
-    text-shadow: none;
-}
-
-::selection {
-    background: #b3d4fc;
-    text-shadow: none;
-}
-
-/*
- * A better looking default horizontal rule
- */
- 
- 
- 
- 
- @property --rotate {
-  syntax: "<angle>";
-  initial-value: 132deg;
-  inherits: false;
-}
-
-:root {
-  --card-height: 70vh;
-  --card-width: 40%;
-}
-
-
-body {
-  min-height: 100vh;
-  background: #212534;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  padding-top: 2rem;
-  padding-bottom: 2rem;
-  box-sizing: border-box;
-  display: flex;
-justify-content: center;
-align-items: center;
-  
-}
-
-/*
 .card {
-  background: #191c29;
-  width: var(--card-width);
-  height: var(--card-height);
+  background: url(../images/Empyrean-AI.png) center no-repeat var(--card-bg);
+  background-size: cover;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
   padding: 3px;
   position: relative;
-  border-radius: 6px;
+  display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
-  display: flex;
   font-size: 1.5em;
-  color: rgb(88 199 250 / 0%);
+  color: transparent;
   cursor: pointer;
   font-family: cursive;
-}
-*/
-
-.card {
-  
-  background: url(../images/Empyrean-AI.png) center no-repeat #191c29;
-  width: var(--card-width);
-  height: var(--card-height);
-  padding: 3px;
-  position: relative;
-  border-radius: 6px;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  display: flex;
-  font-size: 1.5em;
-  color: rgb(88 199 250 / 0%);
-  cursor: pointer;
-  font-family: cursive;
-   height: 250px;
-   width: 250px;
-   border-radius: 50%;
-   margin: 0;
   opacity: 1;
-  /* transition: background-color 1.2s; */
 }
 
 .card.hover {
-  color: rgb(88 199 250 / 100%);
+  color: rgb(88 199 250);
   transition: color 1s;
-
-    background: url(../images/Empyrean-AI.png) center no-repeat #191c29;
-  transition: width 2s linear 1s;
-
-
-
 }
 
+/* ==========================================================================
+   Card State Animations
+   ========================================================================== */
 
-
-
-
-
-
-
-.card.response::before, .card.response::after {
-  content: '';
-  position: absolute;
-  left: -2px;
-  top: -2px;
-  background: linear-gradient(45deg, #fb0094, #0000ff, #00ff00,#ffff00, #ff0000, #fb0094, 
-    #0000ff, #00ff00,#ffff00, #ff0000);
-  background-size: 600%;
-  width: calc(100% + 1px);
-  height: calc(100% + 1px);
-  z-index: -1;
-  animation: steam 80s linear infinite;
-    filter: blur(50px);
-	
-	
-	
-	
-
-
-}
-
-
+/* Active State (Standby/Initializing/Listening) */
 .card.active::before {
+  content: "";
+  position: absolute;
   height: 150px;
-            width: 150px;
-            border-radius: 50%;
+  width: 150px;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: -1;
+  background-image: linear-gradient(var(--rotate), #5ddcff, #3c67e3 43%, #4e00c2);
+  opacity: 1;
+  transition: opacity 0.5s ease;
+  animation: spin 2.5s linear infinite;
 }
 
 .card.active::after {
@@ -283,308 +144,98 @@ align-items: center;
   margin: 0 auto;
   transform: scale(0.8);
   filter: blur(calc(var(--card-height) / 6));
-  background-image: linear-gradient(
-    var(--rotate)
-    , #5ddcff, #3c67e3 43%, #4e00c2);
-    opacity: 1;
-  transition: opacity .5s;
+  background-image: linear-gradient(var(--rotate), #5ddcff, #3c67e3 43%, #4e00c2);
+  opacity: 1;
+  transition: opacity 0.5s ease;
   animation: spin 2.5s linear infinite;
-  
 }
 
+/* Response State (AI Speaking) */
+.card.response::before,
+.card.response::after {
+  content: '';
+  position: absolute;
+  left: -2px;
+  top: -2px;
+  background: var(--rainbow-gradient);
+  background-size: 600%;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  border-radius: 50%;
+  z-index: -1;
+  animation: steam 20s linear infinite; /* Reduced from 80s */
+  filter: blur(25px); /* Reduced blur intensity */
+}
 
+.card.response::before {
+  filter: blur(10px);
+}
 
+/* Keyframe Animations */
 @keyframes spin {
-  0% {
-    --rotate: 0deg;
-  }
-  100% {
-    --rotate: 360deg;
-  }
+  0% { --rotate: 0deg; }
+  100% { --rotate: 360deg; }
 }
 
+@keyframes steam {
+  0% { background-position: 0 0; }
+  50% { background-position: 400% 0; }
+  100% { background-position: 0 0; }
+}
+
+/* ==========================================================================
+   UI Elements
+   ========================================================================== */
+
+.page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.directions {
+  color: rgba(255, 255, 255, 0.5);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 18px;
+  width: 400px;
+  text-align: center;
+  padding-top: 50px;
+  user-select: none;
+}
+
+.prototype {
+  font-weight: bold;
+  font-size: 10px;
+  padding-top: 25px;
+  opacity: 0.7;
+}
+
+/* Brand Logo */
 a {
-  color: #212534;
+  color: var(--primary-bg);
   text-decoration: none;
   font-family: sans-serif;
   font-weight: bold;
   margin-top: 2rem;
+  transition: opacity 0.3s ease;
 }
 
-hr {
-    display: block;
-    height: 1px;
-    border: 0;
-    border-top: 1px solid #ccc;
-    margin: 1em 0;
-    padding: 0;
+a:hover {
+  opacity: 0.7;
 }
 
-/*
- * Remove the gap between images, videos, audio and canvas and the bottom of
- * their containers: h5bp.com/i/440
- */
-
-audio,
-canvas,
-img,
-video {
-    vertical-align: middle;
+a img {
+  transition: transform 0.3s ease;
 }
 
-/*
- * Remove default fieldset styles.
- */
-
-fieldset {
-    border: 0;
-    margin: 0;
-    padding: 0;
-}
-
-/*
- * Allow only vertical resizing of textareas.
- */
-
-textarea {
-    resize: vertical;
+a:hover img {
+  transform: scale(1.1);
 }
 
 /* ==========================================================================
-   Browse Happy prompt
+   Transcript (Hidden but preserved)
    ========================================================================== */
-
-.browsehappy {
-    margin: 0.2em 0;
-    background: #ccc;
-    color: #000;
-    padding: 0.2em 0;
-}
-
-/* ==========================================================================
-   Author's custom styles
-   ========================================================================== */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* ==========================================================================
-   Helper classes
-   ========================================================================== */
-
-/*
- * Image replacement
- */
-
-.ir {
-    background-color: transparent;
-    border: 0;
-    overflow: hidden;
-    /* IE 6/7 fallback */
-    text-indent: -9999px;
-}
-
-.ir:before {
-    content: "";
-    display: block;
-    width: 0;
-    height: 150%;
-}
-
-/*
- * Hide from both screenreaders and browsers: h5bp.com/u
- */
-
-.hidden {
-    display: none !important;
-    visibility: hidden;
-}
-
-/*
- * Hide only visually, but have it available for screenreaders: h5bp.com/v
- */
-
-.visuallyhidden {
-    border: 0;
-    clip: rect(0 0 0 0);
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    padding: 0;
-    position: absolute;
-    width: 1px;
-}
-
-/*
- * Extends the .visuallyhidden class to allow the element to be focusable
- * when navigated to via the keyboard: h5bp.com/p
- */
-
-.visuallyhidden.focusable:active,
-.visuallyhidden.focusable:focus {
-    clip: auto;
-    height: auto;
-    margin: 0;
-    overflow: visible;
-    position: static;
-    width: auto;
-}
-
-/*
- * Hide visually and from screenreaders, but maintain layout
- */
-
-.invisible {
-    visibility: hidden;
-}
-
-/*
- * Clearfix: contain floats
- *
- * For modern browsers
- * 1. The space content is one way to avoid an Opera bug when the
- *    `contenteditable` attribute is included anywhere else in the document.
- *    Otherwise it causes space to appear at the top and bottom of elements
- *    that receive the `clearfix` class.
- * 2. The use of `table` rather than `block` is only necessary if using
- *    `:before` to contain the top-margins of child elements.
- */
-
-.clearfix:before,
-.clearfix:after {
-    content: " "; /* 1 */
-    display: table; /* 2 */
-}
-
-.clearfix:after {
-    clear: both;
-}
-
-/*
- * For IE 6/7 only
- * Include this rule to trigger hasLayout and contain floats.
- */
-
-.clearfix {
-    zoom: 1;
-}
-
-/* ==========================================================================
-   EXAMPLE Media Queries for Responsive Design.
-   These examples override the primary ('mobile first') styles.
-   Modify as content requires.
-   ========================================================================== */
-
-@media only screen and (min-width: 35em) {
-    /* Style adjustments for viewports that meet the condition */
-}
-
-@media print,
-       (-o-min-device-pixel-ratio: 5/4),
-       (-webkit-min-device-pixel-ratio: 1.25),
-       (min-resolution: 120dpi) {
-    /* Style adjustments for high resolution devices */
-}
-
-/* ==========================================================================
-   Print styles.
-   Inlined to avoid required HTTP connection: h5bp.com/r
-   ========================================================================== */
-
-@media print {
-    * {
-        background: transparent !important;
-        color: #000 !important; /* Black prints faster: h5bp.com/s */
-        box-shadow: none !important;
-        text-shadow: none !important;
-    }
-
-    a,
-    a:visited {
-        text-decoration: underline;
-    }
-
-    a[href]:after {
-        content: " (" attr(href) ")";
-    }
-
-    abbr[title]:after {
-        content: " (" attr(title) ")";
-    }
-
-    /*
-     * Don't show links for images, or javascript/internal links
-     */
-
-    .ir a:after,
-    a[href^="javascript:"]:after,
-    a[href^="#"]:after {
-        content: "";
-    }
-
-    pre,
-    blockquote {
-        border: 1px solid #999;
-        page-break-inside: avoid;
-    }
-
-    thead {
-        display: table-header-group; /* h5bp.com/t */
-    }
-
-    tr,
-    img {
-        page-break-inside: avoid;
-    }
-
-    img {
-        max-width: 100% !important;
-    }
-
-    @page {
-        margin: 0.5cm;
-    }
-
-    p,
-    h2,
-    h3 {
-        orphans: 3;
-        widows: 3;
-    }
-
-    h2,
-    h3 {
-        page-break-after: avoid;
-    }
-}
-
-.directions {
-	color: rgba(255, 255, 255, 0.3);
-	    font-family: 'Montserrat';font-size: 18px;
-	width: 400px;
-	text-align: center;
-	padding-top: 50px;
-	
-}
-
-.prototype {
-	font-weight: bold;
-	font-size: 8px;
-	padding-top: 25px;
-}
 
 .transcript {
   position: relative;
@@ -615,5 +266,113 @@ textarea {
   100% {
     transform: translateY(-100%);
     opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   Selection and Focus States
+   ========================================================================== */
+
+::-moz-selection {
+  background: #b3d4fc;
+  text-shadow: none;
+}
+
+::selection {
+  background: #b3d4fc;
+  text-shadow: none;
+}
+
+/* Focus indicators for accessibility */
+.card:focus {
+  outline: 2px solid #5ddcff;
+  outline-offset: 4px;
+}
+
+/* ==========================================================================
+   Utility Classes
+   ========================================================================== */
+
+.hidden {
+  display: none !important;
+  visibility: hidden;
+}
+
+.visuallyhidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.visuallyhidden.focusable:active,
+.visuallyhidden.focusable:focus {
+  clip: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  position: static;
+  width: auto;
+}
+
+.invisible {
+  visibility: hidden;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+@media only screen and (max-width: 768px) {
+  .card {
+    width: 200px;
+    height: 200px;
+  }
+  
+  .directions {
+    width: 300px;
+    font-size: 16px;
+    padding-top: 30px;
+  }
+  
+  body {
+    padding: 1rem;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .card {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .directions {
+    width: 250px;
+    font-size: 14px;
+  }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  * {
+    background: transparent !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  .card, .directions {
+    display: none;
+  }
+  
+  @page {
+    margin: 0.5cm;
   }
 }

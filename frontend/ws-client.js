@@ -1,4 +1,5 @@
 import { chatState } from "./state.js";
+import { handleButtonPress, handleButtonRelease } from "./ui.js";
 
 let socket;
 
@@ -40,8 +41,14 @@ export const initSocket = (onResponse, onError) => {
 
   socket = new WebSocket("ws://localhost:3001/");
 
+  // Store socket reference in chat state for access from other modules
+  chatState.set({ webSocket: socket });
+
   socket.onopen = () => console.info("✅ WebSocket connected");
-  socket.onclose = () => console.warn("❌ WebSocket disconnected");
+  socket.onclose = () => {
+    console.warn("❌ WebSocket disconnected");
+    chatState.set({ webSocket: null });
+  };
   socket.onerror = (err) => {
     console.error("⚠️ WebSocket error:", err);
     onError?.(err);
@@ -96,7 +103,7 @@ export const initSocket = (onResponse, onError) => {
 
         if (url) {
           console.log("🎵 Audio URL ready:", url.substring(0, 50) + "...");
-          onResponse?.({ audioUrl: url }, chatState.get().playbackResolve?.());
+          onResponse?.({ audioUrl: url });
         } else {
           console.warn("⚠️ Failed to create audio URL from payload");
         }
@@ -109,10 +116,12 @@ export const initSocket = (onResponse, onError) => {
       const resolver = chatState.get().playbackResolve;
       try {
         // Tell main/ui that this turn is done; they will wait on any queued audio
-        onResponse?.({ done: true }, resolver);
+        onResponse?.({ done: true });
       } finally {
         // Clear the resolver so next request can set a fresh one
         chatState.set({ playbackResolve: null });
+        // Call resolver if it exists
+        resolver?.();
       }
       return;
     }
@@ -120,6 +129,17 @@ export const initSocket = (onResponse, onError) => {
     if (event === "error") {
       console.warn("⚠️ Backend error:", data);
       onError?.(data);
+      return;
+    }
+
+    if (event === "buttonDown") {
+      console.info("⬇️ USB button down");
+      handleButtonPress();
+      return;
+    }
+    if (event === "buttonUp") {
+      console.info("⬆️ USB button up");
+      handleButtonRelease();
       return;
     }
 
@@ -166,5 +186,21 @@ export const sendCommand = async (userID, text) => {
     const errMsg = "⚠️ WebSocket is not open";
     console.warn(errMsg);
     throw new Error(errMsg);
+  }
+};
+
+export const sendCancel = () => {
+  const payload = { event: "cancel" };
+  console.debug("WS → cancel");
+
+  if (socket?.readyState === WebSocket.OPEN) {
+    try {
+      socket.send(JSON.stringify(payload));
+      console.info("✅ Cancel sent");
+    } catch (err) {
+      console.error("❌ Error sending cancel:", err);
+    }
+  } else {
+    console.warn("⚠️ Cannot send cancel - WebSocket not open");
   }
 };
