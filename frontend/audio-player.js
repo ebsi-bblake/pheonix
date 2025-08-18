@@ -1,31 +1,42 @@
+// audio-player.js
 import { Events, chatState, dispatcher } from "./state.js";
 
 export const playAudio = async (audioUrl) => {
-  // Nothing to play? Exit quietly.
   if (!audioUrl) return;
 
-  const tokenAtStart = chatState.get().playbackToken || 0; // capture token
+  const tokenAtStart = chatState.get().playbackToken || 0;
   const audio = new Audio(audioUrl);
+  audio.preload = "auto";
   chatState.set({ audio });
 
-  let resolved = false;
-  let started = false;
-  let timeout;
   const start = performance.now();
   const isStale = () => tokenAtStart !== (chatState.get().playbackToken || 0);
 
-  const safeResolve = async () => {
-    if (!resolved) {
+  return new Promise(async (resolve) => {
+    let resolved = false;
+    let timeout;
+
+    const maybeRevoke = () => {
+      try {
+        if (audio.src && audio.src.startsWith("blob:")) {
+          URL.revokeObjectURL(audio.src);
+        }
+      } catch {}
+    };
+
+    const safeResolve = async () => {
+      if (resolved) return;
       resolved = true;
       clearTimeout(timeout);
       if (chatState.get().audio === audio) chatState.set({ audio: null });
+      maybeRevoke();
       await new Promise(requestAnimationFrame);
-    }
-  };
+      resolve(); // <-- IMPORTANT: finish the promise
+    };
 
-  const attachHandlers = () => {
+    // Handlers FIRST
     audio.onended = async () => {
-      if (isStale()) return safeResolve(); // ignore old playback
+      if (isStale()) return safeResolve();
       const actual = (performance.now() - start) / 1000;
       console.log(`🟢 Audio ended after ${actual.toFixed(2)}s`);
       dispatcher.dispatch({ type: Events.FINISH });
@@ -33,33 +44,36 @@ export const playAudio = async (audioUrl) => {
     };
 
     audio.onerror = async (e) => {
-      if (isStale()) return safeResolve(); // expected on interrupt
+      if (isStale()) return safeResolve();
       console.warn("⚠️ Audio playback failed:", e);
       dispatcher.dispatch({ type: Events.FINISH });
       await safeResolve();
     };
-  };
 
-  return new Promise(async (resolve) => {
     try {
       console.log("▶️ Playing audio...");
+      // Give metadata a moment; some browsers prefer load() -> play()
+      try {
+        audio.load();
+      } catch {}
+
+      // Kick off playback (must be user-gesture compatible; your mic click is fine)
       await audio.play();
-      started = true;
 
-      attachHandlers();
-
+      // Wait a bit for duration to show up
       const waitForMetadata = new Promise((res) => {
         audio.onloadedmetadata = res;
-        setTimeout(res, 500);
+        setTimeout(res, 800);
       });
       await waitForMetadata;
 
+      // Duration fallback: only guess for data: URLs; for blob/remote use a modest cap
       const duration =
-        isFinite(audio.duration) && audio.duration > 0
+        Number.isFinite(audio.duration) && audio.duration > 0
           ? audio.duration
-          : estimateAudioDurationFromBase64(audioUrl);
-
-      console.log("🎯 estimated duration:", duration);
+          : audioUrl.startsWith("data:")
+            ? estimateAudioDurationFromBase64(audioUrl)
+            : 8;
 
       timeout = setTimeout(
         async () => {
@@ -74,10 +88,10 @@ export const playAudio = async (audioUrl) => {
     } catch (err) {
       if (!isStale()) {
         console.warn("🚫 audio.play() threw:", err);
-        if (started) dispatcher.dispatch({ type: Events.FINISH });
+        // If play() failed, still move UI along so it doesn't get stuck
+        dispatcher.dispatch({ type: Events.FINISH });
       }
       await safeResolve();
-      resolve();
     }
   });
 };
@@ -90,15 +104,20 @@ const estimateAudioDurationFromBase64 = (base64) => {
 
 export const stopCurrentAudio = () => {
   const current = chatState.get();
-  const newToken = (current.playbackToken || 0) + 1; // invalidate old handlers
+  const newToken = (current.playbackToken || 0) + 1;
   chatState.set({ playbackToken: newToken });
 
   const { audio } = current;
   if (audio) {
     try {
       audio.pause();
+      if (audio.src && audio.src.startsWith("blob:")) {
+        try {
+          URL.revokeObjectURL(audio.src);
+        } catch {}
+      }
       audio.src = "";
-    } catch { }
+    } catch {}
     if (chatState.get().audio === audio) chatState.set({ audio: null });
   }
 };

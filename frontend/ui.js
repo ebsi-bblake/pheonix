@@ -13,25 +13,25 @@ dispatcher.setHook((next, prev, event) => {
   updateUI(next);
 });
 
-const micBtn = document.getElementById("mic-btn");
-
 export const start = () => {
-  if (!micBtn) {
-    console.warn("Mic button element not found");
-    return;
-  }
+  document.addEventListener("keydown", (e) => {
+    if (e.code === "Space" && !e.repeat) {
+      handleButtonPress();
+    }
+  });
 
-  micBtn.addEventListener("click", micButtonHandler);
-  micBtn.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      micButtonHandler();
+  document.addEventListener("keyup", (e) => {
+    if (e.code === "Space") {
+      handleButtonRelease();
     }
   });
 };
 
-const micButtonHandler = async () => {
-  if (dispatcher.getState() !== States.OFF) {
+export const launcherBtnHandler = async () => {
+  const currentState = dispatcher.getState();
+
+  // If not OFF, exit the system
+  if (currentState !== States.OFF) {
     dispatcher.dispatch({ type: Events.EXIT });
     abortRecognition();
     chatState.reset();
@@ -41,9 +41,10 @@ const micButtonHandler = async () => {
   try {
     await navigator.mediaDevices.getUserMedia({ audio: true });
     console.info("✅ Mic permission granted");
-    dispatcher.dispatch({ type: Events.START });
+    dispatcher.dispatch({ type: Events.START }); // Goes to INITIALIZING
   } catch (err) {
     console.error("❌ Mic permission denied", err);
+    dispatcher.dispatch({ type: Events.ERROR });
   }
 };
 
@@ -51,18 +52,27 @@ export const updateUI = (newState) => {
   const body = document.body;
   const card = document.querySelector(".card");
 
-  body.classList.toggle("off", newState === States.OFF);
-  body.classList.toggle("standby", newState === States.STANDBY);
-  body.classList.toggle("listening", newState === States.LISTENING);
-  body.classList.toggle("response", newState === States.RESPONSE);
+  // Clear all state classes
+  body.classList.remove(
+    "off",
+    "initializing",
+    "standby",
+    "listening",
+    "response",
+  );
+
+  // Set current state class
+  body.classList.add(newState);
 
   if (!card) return;
 
+  // Update card classes based on state
   card.classList.toggle(
     "active",
-    newState === States.LISTENING || newState === States.STANDBY,
+    [States.LISTENING, States.STANDBY, States.INITIALIZING].includes(newState),
   );
   card.classList.toggle("response", newState === States.RESPONSE);
+  card.classList.toggle("initializing", newState === States.INITIALIZING);
 };
 
 // USB button pressed → start buffering recognition
@@ -70,7 +80,7 @@ export const handleButtonPress = async () => {
   const currentState = dispatcher.getState();
 
   if ([States.RESPONSE, States.LISTENING].includes(currentState)) {
-    console.warn("⏹️ Interrupting current activity");
+    console.warn("ℹ️ Interrupting current activity");
     abortRecognition();
     stopCurrentAudio();
     chatState.set({ cancelRequested: true });
@@ -78,6 +88,7 @@ export const handleButtonPress = async () => {
   } else if (currentState === States.STANDBY) {
     dispatcher.dispatch({ type: Events.PRESS });
   } else {
+    console.warn(`⚠️ Button press ignored in state: ${currentState}`);
     return;
   }
 
@@ -86,14 +97,19 @@ export const handleButtonPress = async () => {
     chatState.set({ cancelRequested: false });
   } catch (err) {
     console.error("Recognition error:", err);
-    // If recognition can’t start, bounce back to standby
+    // If recognition can't start, bounce back to standby
     dispatcher.dispatch({ type: Events.FINISH });
   }
 };
 
 // USB button released → stop recognition and process
 export const handleButtonRelease = async () => {
-  if (dispatcher.getState() !== States.LISTENING) return;
+  const currentState = dispatcher.getState();
+
+  if (currentState !== States.LISTENING) {
+    console.warn(`⚠️ Button release ignored in state: ${currentState}`);
+    return;
+  }
 
   dispatcher.dispatch({ type: Events.RELEASE });
 
@@ -123,8 +139,8 @@ export const handleButtonRelease = async () => {
     ]);
   } catch (err) {
     console.error("Error sending command:", err);
+    dispatcher.dispatch({ type: Events.ERROR });
   } finally {
-    // dispatcher.dispatch({ type: Events.FINISH });
     chatState.set({ cancelRequested: false });
   }
 };

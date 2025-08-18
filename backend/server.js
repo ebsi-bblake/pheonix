@@ -2,13 +2,12 @@
 import express from "express";
 import http from "http";
 import { WebSocketServer } from "ws";
-import fetch from "node-fetch";
 import dotenv from "dotenv";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import { startDelcomButtonWatcher } from "./delcom.js";
-import { createParser } from "eventsource-parser";
+import { EventSourceParserStream } from "eventsource-parser/stream";
 
 // __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -72,28 +71,110 @@ const broadcast = (event, data = {}) => {
 };
 startDelcomButtonWatcher(broadcast);
 
+// ── Audio accumulation per-WS ────────────────────────────────────────────────
+/**
+ * Map<WebSocket, { chunks: string[], encoding: string|null }>
+ */
+const audioAccumulators = new Map();
+
+function resetAccumulator(ws) {
+  audioAccumulators.delete(ws);
+}
+
+function handleTraceWithBatching(ws, cid, id, trace) {
+  // If Voiceflow gives a direct URL, forward as-is and clear any previous acc.
+  if (trace?.payload?.audio?.src) {
+    resetAccumulator(ws);
+    safeSend(ws, { event: "trace", id, data: trace }, `cid=${cid}`);
+    return;
+  }
+
+  // Audio chunking path (payload: {state:'start'|'content'|'end', ...})
+  if (trace?.type === "audio" && trace?.payload) {
+    const { state, encoding, content } = trace.payload;
+
+    if (state === "start") {
+      audioAccumulators.set(ws, { chunks: [], encoding: null });
+      log.debug("Audio streaming started");
+      return; // don't forward start to FE
+    }
+
+    if (state === "content") {
+      const acc = audioAccumulators.get(ws);
+      if (acc && encoding === "audio/mp3" && content) {
+        try {
+          // Decode base64 chunk to binary buffer
+          const binaryChunk = Buffer.from(content, "base64");
+          acc.chunks.push(binaryChunk);
+          if (!acc.encoding) acc.encoding = encoding;
+          log.debug(
+            `Added audio chunk: ${binaryChunk.length} bytes (total chunks: ${acc.chunks.length})`,
+          );
+        } catch (err) {
+          log.error("Failed to decode audio chunk:", err);
+        }
+      }
+      return; // swallow individual content chunks
+    }
+
+    if (state === "end") {
+      const acc = audioAccumulators.get(ws);
+      if (acc && acc.chunks.length) {
+        try {
+          // Concatenate all binary chunks
+          const totalLength = acc.chunks.reduce(
+            (sum, chunk) => sum + chunk.length,
+            0,
+          );
+          const fullAudioBuffer = Buffer.concat(acc.chunks, totalLength);
+
+          // Convert back to base64 for transmission
+          const fullBase64 = fullAudioBuffer.toString("base64");
+
+          log.debug(
+            `Audio streaming complete: ${acc.chunks.length} chunks, ${totalLength} total bytes`,
+          );
+
+          const consolidated = {
+            type: "audio",
+            payload: {
+              encoding: acc.encoding || "audio/mp3",
+              content: fullBase64,
+            },
+          };
+          safeSend(
+            ws,
+            { event: "trace", id, data: consolidated },
+            `cid=${cid}`,
+          );
+        } catch (err) {
+          log.error("Failed to consolidate audio chunks:", err);
+        }
+      }
+      resetAccumulator(ws);
+      return; // don't forward raw end
+    }
+  }
+
+  // Non-audio or unknown audio shapes → pass through
+  safeSend(ws, { event: "trace", id, data: trace }, `cid=${cid}`);
+}
+
 // ── Streaming helper (SSE) ───────────────────────────────────────────────────
 async function voiceflowStreamInteract(userID, payload, { signal, onEvent }) {
-  // Project-scoped streaming endpoint (as requested)
-  const url = `${VOICEFLOW_BASE_URL}/v2/project/${VOICEFLOW_PROJECT_ID}/user/${userID}/interact/stream?audio_events=true&audio_encoding=audio%2Fpcm&completion_events=true`;
+  const url = `${VOICEFLOW_BASE_URL}/v2/project/${VOICEFLOW_PROJECT_ID}/user/${userID}/interact/stream?audio_events=true&completion_events=true`;
 
-  VOICEFLOW_API_KEY;
   log.info("VF ▶ stream POST", url);
-  log.debug("VF ▶ headers", {
-    Authorization: `${VOICEFLOW_API_KEY}`,
-    Accept: "text/event-stream",
-  });
-  log.debug("VF ▶ payload", payload);
 
   const res = await fetch(url, {
     method: "POST",
     headers: {
-      Authorization: VOICEFLOW_API_KEY, // Voiceflow expects raw token value here
+      Authorization: VOICEFLOW_API_KEY,
       "Content-Type": "application/json",
       Accept: "text/event-stream",
     },
     body: JSON.stringify(payload),
-    signal,
+    signal, // this only cancels the initial request before body is read
   });
 
   log.info("VF ◀ status", res.status, res.statusText);
@@ -104,69 +185,78 @@ async function voiceflowStreamInteract(userID, payload, { signal, onEvent }) {
     throw new Error(`VF stream error: ${res.status} ${res.statusText} ${txt}`);
   }
 
+  // If someone already aborted before we attach, just cancel the body and bail.
+  if (signal?.aborted) {
+    try {
+      await res.body.cancel?.();
+    } catch {}
+    return;
+  }
+
+  // Bytes -> Text -> SSE events
+  const sseStream = res.body
+    .pipeThrough(new TextDecoderStream())
+    .pipeThrough(new EventSourceParserStream());
+
+  let reader;
+  let readerAttached = false;
+
+  const abort = () => {
+    // Idempotent, safe abort; only cancel reader if it’s actually attached.
+    try {
+      if (readerAttached && reader) {
+        // swallow any errors from cancel when stream is already closed/detached
+        const p = reader.cancel();
+        if (p && typeof p.catch === "function") p.catch(() => {});
+      }
+    } catch {}
+    try {
+      res.body?.cancel?.();
+    } catch {}
+  };
+
+  // Wire abort AFTER we’ve created the pipeline, but guard both paths.
+  if (signal) {
+    if (signal.aborted) {
+      abort();
+      return;
+    }
+    // remove listener on cleanup
+    var abortHandler = abort;
+    signal.addEventListener("abort", abortHandler, { once: true });
+  }
+
+  reader = sseStream.getReader();
+  readerAttached = true;
+
   let sseCount = 0;
-  const parser = createParser({
-    onEvent(evt) {
-      if (evt.type !== "event") return;
+  try {
+    while (true) {
+      const { value: evt, done } = await reader.read();
+      if (done) break;
+      if (!evt) continue;
+
       let data = evt.data;
       try {
         data = data ? JSON.parse(data) : null;
-      } catch (e) {
-        log.error("WTF", e);
-        // keep raw string if JSON parse fails
-      }
+      } catch {}
+
+      sseCount++;
       onEvent?.({ event: evt.event || "message", id: evt.id, data });
-    },
-  });
-
-  const feed = (chunk) => {
-    if (!chunk) return;
-    const bytes = Buffer.isBuffer(chunk)
-      ? chunk.length
-      : Buffer.byteLength(String(chunk));
-    log.trace(`VF ◀ chunk ${bytes} bytes`);
-    parser.feed(typeof chunk === "string" ? chunk : chunk.toString("utf8"));
-  };
-
-  if (typeof res.body.getReader === "function") {
-    const reader = res.body.getReader();
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      feed(value);
+    }
+  } finally {
+    // Clean up
+    try {
+      reader.releaseLock?.();
+    } catch {}
+    readerAttached = false;
+    if (signal && abortHandler) {
+      try {
+        signal.removeEventListener("abort", abortHandler);
+      } catch {}
     }
     log.debug(`VF ◀ stream ended (SSE events: ${sseCount})`);
-    return;
   }
-
-  if (typeof res.body[Symbol.asyncIterator] === "function") {
-    for await (const chunk of res.body) feed(chunk);
-    log.debug(`VF ◀ stream ended (SSE events: ${sseCount})`);
-    return;
-  }
-
-  await new Promise((resolve, reject) => {
-    res.body.on("data", feed);
-    res.body.on("end", () => {
-      log.debug(`VF ◀ stream ended (SSE events: ${sseCount})`);
-      resolve();
-    });
-    res.body.on("error", (e) => {
-      log.error("VF ◀ stream error", e);
-      reject(e);
-    });
-    if (signal) {
-      const abort = () => {
-        log.warn("VF ◀ stream aborted by controller");
-        try {
-          res.body.destroy?.();
-        } catch {}
-        resolve();
-      };
-      if (signal.aborted) abort();
-      else signal.addEventListener("abort", abort, { once: true });
-    }
-  });
 }
 
 // ── Health ───────────────────────────────────────────────────────────────────
@@ -185,41 +275,12 @@ wss.on("connection", async (ws) => {
     log.info(`🔌 WS client closed [cid=${cid}]`);
     controllers.get(ws)?.abort();
     controllers.delete(ws);
+    resetAccumulator(ws);
   });
 
   ws.on("error", (e) => log.warn(`WS error [cid=${cid}]`, e));
 
-  // Stream a launch immediately (no parsing here; FE decides what to render)
-  const launchCtrl = new AbortController();
-  controllers.set(ws, launchCtrl);
-  log.debug(`launch controller set [cid=${cid}]`);
-
-  voiceflowStreamInteract(
-    userID,
-    { action: { type: "launch" } },
-    {
-      signal: launchCtrl.signal,
-      onEvent: ({ event: ev, id, data }) => {
-        if (ev === "trace") {
-          safeSend(ws, { event: "trace", id, data }, `cid=${cid}`);
-        } else if (ev === "end") {
-          safeSend(ws, { event: "responseDone" }, `cid=${cid}`);
-        } else {
-          safeSend(ws, { event: ev, id, data }, `cid=${cid}`);
-        }
-      },
-    },
-  ).catch((err) => {
-    if (!launchCtrl.signal.aborted) {
-      log.error("launch stream error", err);
-      safeSend(
-        ws,
-        { event: "error", data: String(err.message || err) },
-        `cid=${cid}`,
-      );
-    }
-  });
-
+  // FE explicitly controls when VF should start via {event:"launch"}
   ws.on("message", async (raw) => {
     log.debug(`WS ← client [cid=${cid}]`, raw?.toString?.().slice(0, 300));
     let parsed;
@@ -244,6 +305,44 @@ wss.on("connection", async (ws) => {
       return;
     }
 
+    if (event === "launch") {
+      // abort any existing
+      controllers.get(ws)?.abort();
+      const controller = new AbortController();
+      controllers.set(ws, controller);
+      resetAccumulator(ws);
+
+      log.info(`🎙 starting VF launch stream [cid=${cid}]`);
+      voiceflowStreamInteract(
+        userID,
+        { action: { type: "launch" } },
+        {
+          signal: controller.signal,
+          onEvent: ({ event: ev, id, data }) => {
+            if (ev === "trace") {
+              // Batch audio, pass-through others
+              handleTraceWithBatching(ws, cid, id, data);
+            } else if (ev === "end") {
+              // VF emits end when the turn is complete
+              safeSend(ws, { event: "responseDone" }, `cid=${cid}`);
+            } else {
+              safeSend(ws, { event: ev, id, data }, `cid=${cid}`);
+            }
+          },
+        },
+      ).catch((err) => {
+        if (!controller.signal.aborted) {
+          log.error("launch stream error", err);
+          safeSend(
+            ws,
+            { event: "error", data: String(err.message || err) },
+            `cid=${cid}`,
+          );
+        }
+      });
+      return;
+    }
+
     if (event === "commandStream") {
       const { userID: uid, text } = data || {};
       if (!uid || !text) {
@@ -255,12 +354,11 @@ wss.on("connection", async (ws) => {
         return;
       }
 
-      // barge-in: abort previous stream for this client
-      log.info(`barge-in: aborting previous controller [cid=${cid}]`);
+      // barge-in
       controllers.get(ws)?.abort();
       const controller = new AbortController();
       controllers.set(ws, controller);
-      log.debug(`new controller set [cid=${cid}]`);
+      resetAccumulator(ws);
 
       try {
         await voiceflowStreamInteract(
@@ -270,7 +368,7 @@ wss.on("connection", async (ws) => {
             signal: controller.signal,
             onEvent: ({ event: ev, id, data }) => {
               if (ev === "trace") {
-                safeSend(ws, { event: "trace", id, data }, `cid=${cid}`);
+                handleTraceWithBatching(ws, cid, id, data);
               } else if (ev === "end") {
                 safeSend(ws, { event: "responseDone" }, `cid=${cid}`);
               } else {
@@ -280,7 +378,7 @@ wss.on("connection", async (ws) => {
           },
         );
       } catch (err) {
-        if (controller.signal.aborted) return; // expected on barge-in
+        if (controller.signal.aborted) return;
         log.error("stream error", err);
         safeSend(
           ws,
@@ -296,6 +394,7 @@ wss.on("connection", async (ws) => {
     if (event === "cancel") {
       log.info(`cancel requested [cid=${cid}]`);
       controllers.get(ws)?.abort();
+      resetAccumulator(ws);
       return;
     }
 

@@ -1,27 +1,470 @@
 ⚠️ Delcom not found and no TTY available; keyboard fallback disabled. Backend will run without button events.
 🚀 Backend running at http://localhost:3001
-[2025-08-16 20:23:30.716] ℹ️ 🔌 WS client connected [cid=el28is]
-[2025-08-16 20:23:30.717] 🐛 launch controller set [cid=el28is]
-[2025-08-16 20:23:30.717] ℹ️ VF ▶ stream POST https://general-runtime.empyrean.voiceflow.com/v2/project/686fd8451568df4a12fdc02e/user/ebsi_pheonix/interact/stream?audio_events=true&audio_encoding=audio%2Fpcm&completion_events=true
-[2025-08-16 20:23:30.717] 🐛 VF ▶ headers {
-  Authorization: 'VF.DM.688a57333ef9f63be76f4725.xPVNCbGdyoJbcYPI',
-  Accept: 'text/event-stream'
-}
-[2025-08-16 20:23:30.718] 🐛 VF ▶ payload { action: { type: 'launch' } }
-[2025-08-16 20:23:31.475] ℹ️ VF ◀ status 200 OK
-[2025-08-16 20:23:31.478] 🐛 VF ◀ content-type text/event-stream
-[2025-08-16 20:23:33.503] 🐛 VF ◀ stream ended (SSE events: 0)
-[2025-08-16 20:23:46.682] 🐛 WS ← client [cid=el28is] {"event":"commandStream","data":{"userID":"ebsi_pheonix","text":"costco today that's actually clean house"}}
-[2025-08-16 20:23:46.682] ℹ️ barge-in: aborting previous controller [cid=el28is]
-[2025-08-16 20:23:46.682] 🐛 new controller set [cid=el28is]
-[2025-08-16 20:23:46.682] ℹ️ VF ▶ stream POST https://general-runtime.empyrean.voiceflow.com/v2/project/686fd8451568df4a12fdc02e/user/ebsi_pheonix/interact/stream?audio_events=true&audio_encoding=audio%2Fpcm&completion_events=true
-[2025-08-16 20:23:46.682] 🐛 VF ▶ headers {
-  Authorization: 'VF.DM.688a57333ef9f63be76f4725.xPVNCbGdyoJbcYPI',
-  Accept: 'text/event-stream'
-}
-[2025-08-16 20:23:46.683] 🐛 VF ▶ payload {
-  action: { type: 'text', payload: "costco today that's actually clean house" }
-}
-[2025-08-16 20:23:46.998] ℹ️ VF ◀ status 200 OK
-[2025-08-16 20:23:46.999] 🐛 VF ◀ content-type text/event-stream
-[2025-08-16 20:23:49.666] 🐛 VF ◀ stream ended (SSE events: 0)
+[2025-08-18 13:09:50.620] ℹ️ 🔌 WS client connected [cid=64qay4]
+[2025-08-18 13:10:15.263] ℹ️ 🔌 WS client closed [cid=64qay4]
+[2025-08-18 13:10:15.295] ℹ️ 🔌 WS client connected [cid=u06zpx]
+[2025-08-18 13:10:19.737] 🐛 WS ← client [cid=u06zpx] {"event":"launch","data":{"userID":"ebsi_pheonix"}}
+[2025-08-18 13:10:19.738] ℹ️ 🎙 starting VF launch stream [cid=u06zpx]
+[2025-08-18 13:10:19.739] ℹ️ VF ▶ stream POST https://general-runtime.empyrean.voiceflow.com/v2/project/688a31725e1ce233d3148786/user/ebsi_pheonix/interact/stream?audio_events=true&completion_events=true
+[2025-08-18 13:10:20.504] ℹ️ VF ◀ status 200 OK
+[2025-08-18 13:10:20.507] 🐛 VF ◀ content-type text/event-stream
+[2025-08-18 13:10:20.517] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"1","data":{"time":1755522620608,"type":"block","payload":{"blockID":"start00000000000000000000"}}}
+[2025-08-18 13:10:20.519] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"2","data":{"time":1755522620611,"type":"debug","payload":{"ref":{"type":"node","nodeID":"start00000000000000000000","nodeType":"start","diagramID":"64dbb6696a8fab0013dba194"},"level":"info","message":"starting conversation","context":"Start","metadata":{"userID":"ebsi_pheonix"… [343b]
+[2025-08-18 13:10:20.519] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"3","data":{"time":1755522620611,"type":"block","payload":{"blockID":"67db2b51c6c175f16d898090"}}}
+[2025-08-18 13:10:20.519] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"4","data":{"time":1755522620613,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"level":"debug","message":"starting execution","context":"Agent","metadata":{"tools"… [534b]
+[2025-08-18 13:10:22.678] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"5","data":{"time":1755522622786,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"level":"debug","message":"first chunk received","context":"Agent","metadata":{"late… [313b]
+[2025-08-18 13:10:22.683] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"6","data":{"time":1755522622787,"type":"completion","payload":{"state":"start","ai":true}}}
+[2025-08-18 13:10:22.685] 🐛 Audio streaming started
+[2025-08-18 13:10:22.687] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"8","data":{"time":1755522622787,"type":"completion","payload":{"state":"content","content":"Hello"}}}
+[2025-08-18 13:10:22.702] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"9","data":{"time":1755522622824,"type":"completion","payload":{"state":"content","content":","}}}
+[2025-08-18 13:10:22.704] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"10","data":{"time":1755522622825,"type":"completion","payload":{"state":"content","content":" welcome"}}}
+[2025-08-18 13:10:22.792] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"11","data":{"time":1755522622903,"type":"completion","payload":{"state":"content","content":" to"}}}
+[2025-08-18 13:10:22.793] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"12","data":{"time":1755522622905,"type":"completion","payload":{"state":"content","content":" Emp"}}}
+[2025-08-18 13:10:22.867] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"13","data":{"time":1755522622991,"type":"completion","payload":{"state":"content","content":"yre"}}}
+[2025-08-18 13:10:22.868] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"14","data":{"time":1755522622991,"type":"completion","payload":{"state":"content","content":"an"}}}
+[2025-08-18 13:10:22.908] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"15","data":{"time":1755522623026,"type":"completion","payload":{"state":"content","content":" Benefit"}}}
+[2025-08-18 13:10:22.909] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"16","data":{"time":1755522623027,"type":"completion","payload":{"state":"content","content":" Solutions"}}}
+[2025-08-18 13:10:22.931] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"17","data":{"time":1755522623050,"type":"completion","payload":{"state":"content","content":"!"}}}
+[2025-08-18 13:10:23.423] 🐛 Added audio chunk: 1372 bytes (total chunks: 1)
+[2025-08-18 13:10:23.426] 🐛 Added audio chunk: 1378 bytes (total chunks: 2)
+[2025-08-18 13:10:23.427] 🐛 Added audio chunk: 1378 bytes (total chunks: 3)
+[2025-08-18 13:10:23.428] 🐛 Added audio chunk: 1378 bytes (total chunks: 4)
+[2025-08-18 13:10:23.429] 🐛 Added audio chunk: 1226 bytes (total chunks: 5)
+[2025-08-18 13:10:23.430] 🐛 Added audio chunk: 1217 bytes (total chunks: 6)
+[2025-08-18 13:10:23.431] 🐛 Added audio chunk: 1372 bytes (total chunks: 7)
+[2025-08-18 13:10:23.432] 🐛 Added audio chunk: 1378 bytes (total chunks: 8)
+[2025-08-18 13:10:23.432] 🐛 Added audio chunk: 1378 bytes (total chunks: 9)
+[2025-08-18 13:10:23.447] 🐛 Added audio chunk: 1378 bytes (total chunks: 10)
+[2025-08-18 13:10:23.505] 🐛 Added audio chunk: 1218 bytes (total chunks: 11)
+[2025-08-18 13:10:23.506] 🐛 Added audio chunk: 1373 bytes (total chunks: 12)
+[2025-08-18 13:10:23.533] 🐛 Added audio chunk: 1378 bytes (total chunks: 13)
+[2025-08-18 13:10:23.539] 🐛 Added audio chunk: 1339 bytes (total chunks: 14)
+[2025-08-18 13:10:23.539] 🐛 Added audio chunk: 1373 bytes (total chunks: 15)
+[2025-08-18 13:10:23.540] 🐛 Added audio chunk: 1378 bytes (total chunks: 16)
+[2025-08-18 13:10:23.541] 🐛 Added audio chunk: 1100 bytes (total chunks: 17)
+[2025-08-18 13:10:23.542] 🐛 Added audio chunk: 1213 bytes (total chunks: 18)
+[2025-08-18 13:10:23.543] 🐛 Added audio chunk: 1372 bytes (total chunks: 19)
+[2025-08-18 13:10:23.543] 🐛 Added audio chunk: 1378 bytes (total chunks: 20)
+[2025-08-18 13:10:23.543] 🐛 Added audio chunk: 1378 bytes (total chunks: 21)
+[2025-08-18 13:10:23.544] 🐛 Added audio chunk: 1378 bytes (total chunks: 22)
+[2025-08-18 13:10:23.544] 🐛 Added audio chunk: 1223 bytes (total chunks: 23)
+[2025-08-18 13:10:23.614] 🐛 Added audio chunk: 1372 bytes (total chunks: 24)
+[2025-08-18 13:10:23.628] 🐛 Added audio chunk: 1378 bytes (total chunks: 25)
+[2025-08-18 13:10:23.628] 🐛 Added audio chunk: 1378 bytes (total chunks: 26)
+[2025-08-18 13:10:23.628] 🐛 Added audio chunk: 1175 bytes (total chunks: 27)
+[2025-08-18 13:10:23.628] 🐛 Added audio chunk: 1373 bytes (total chunks: 28)
+[2025-08-18 13:10:23.628] 🐛 Added audio chunk: 1265 bytes (total chunks: 29)
+[2025-08-18 13:10:23.628] 🐛 Added audio chunk: 1213 bytes (total chunks: 30)
+[2025-08-18 13:10:23.628] 🐛 Added audio chunk: 1372 bytes (total chunks: 31)
+[2025-08-18 13:10:23.629] 🐛 Added audio chunk: 1378 bytes (total chunks: 32)
+[2025-08-18 13:10:23.629] 🐛 Added audio chunk: 1378 bytes (total chunks: 33)
+[2025-08-18 13:10:23.629] 🐛 Added audio chunk: 1378 bytes (total chunks: 34)
+[2025-08-18 13:10:23.629] 🐛 Added audio chunk: 1222 bytes (total chunks: 35)
+[2025-08-18 13:10:23.629] 🐛 Added audio chunk: 1373 bytes (total chunks: 36)
+[2025-08-18 13:10:23.629] 🐛 Added audio chunk: 1378 bytes (total chunks: 37)
+[2025-08-18 13:10:23.629] 🐛 Added audio chunk: 1339 bytes (total chunks: 38)
+[2025-08-18 13:10:23.637] 🐛 Added audio chunk: 1373 bytes (total chunks: 39)
+[2025-08-18 13:10:23.637] 🐛 Added audio chunk: 1378 bytes (total chunks: 40)
+[2025-08-18 13:10:23.637] 🐛 Added audio chunk: 1100 bytes (total chunks: 41)
+[2025-08-18 13:10:23.637] 🐛 Added audio chunk: 1372 bytes (total chunks: 42)
+[2025-08-18 13:10:23.638] 🐛 Added audio chunk: 1378 bytes (total chunks: 43)
+[2025-08-18 13:10:23.638] 🐛 Added audio chunk: 1378 bytes (total chunks: 44)
+[2025-08-18 13:10:23.638] 🐛 Added audio chunk: 888 bytes (total chunks: 45)
+[2025-08-18 13:10:23.638] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"63","data":{"time":1755522623054,"type":"completion","payload":{"state":"content","content":" I'm"}}}
+[2025-08-18 13:10:23.638] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"64","data":{"time":1755522623072,"type":"completion","payload":{"state":"content","content":" Emp"}}}
+[2025-08-18 13:10:23.638] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"65","data":{"time":1755522623073,"type":"completion","payload":{"state":"content","content":"yre"}}}
+[2025-08-18 13:10:23.638] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"66","data":{"time":1755522623096,"type":"completion","payload":{"state":"content","content":"an"}}}
+[2025-08-18 13:10:23.639] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"67","data":{"time":1755522623097,"type":"completion","payload":{"state":"content","content":","}}}
+[2025-08-18 13:10:23.639] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"68","data":{"time":1755522623119,"type":"completion","payload":{"state":"content","content":" your"}}}
+[2025-08-18 13:10:23.639] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"69","data":{"time":1755522623120,"type":"completion","payload":{"state":"content","content":" virtual"}}}
+[2025-08-18 13:10:23.639] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"70","data":{"time":1755522623160,"type":"completion","payload":{"state":"content","content":" assistant"}}}
+[2025-08-18 13:10:23.640] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"71","data":{"time":1755522623161,"type":"completion","payload":{"state":"content","content":"."}}}
+[2025-08-18 13:10:24.012] 🐛 Added audio chunk: 1372 bytes (total chunks: 46)
+[2025-08-18 13:10:24.013] 🐛 Added audio chunk: 1378 bytes (total chunks: 47)
+[2025-08-18 13:10:24.013] 🐛 Added audio chunk: 1378 bytes (total chunks: 48)
+[2025-08-18 13:10:24.013] 🐛 Added audio chunk: 1378 bytes (total chunks: 49)
+[2025-08-18 13:10:24.014] 🐛 Added audio chunk: 1226 bytes (total chunks: 50)
+[2025-08-18 13:10:24.021] 🐛 Added audio chunk: 1372 bytes (total chunks: 51)
+[2025-08-18 13:10:24.021] 🐛 Added audio chunk: 1378 bytes (total chunks: 52)
+[2025-08-18 13:10:24.022] 🐛 Added audio chunk: 1378 bytes (total chunks: 53)
+[2025-08-18 13:10:24.024] 🐛 Added audio chunk: 1378 bytes (total chunks: 54)
+[2025-08-18 13:10:24.025] 🐛 Added audio chunk: 1378 bytes (total chunks: 55)
+[2025-08-18 13:10:24.025] 🐛 Added audio chunk: 1057 bytes (total chunks: 56)
+[2025-08-18 13:10:24.025] 🐛 Added audio chunk: 1373 bytes (total chunks: 57)
+[2025-08-18 13:10:24.026] 🐛 Added audio chunk: 1378 bytes (total chunks: 58)
+[2025-08-18 13:10:24.026] 🐛 Added audio chunk: 1339 bytes (total chunks: 59)
+[2025-08-18 13:10:24.033] 🐛 Added audio chunk: 1373 bytes (total chunks: 60)
+[2025-08-18 13:10:24.034] 🐛 Added audio chunk: 1378 bytes (total chunks: 61)
+[2025-08-18 13:10:24.034] 🐛 Added audio chunk: 1100 bytes (total chunks: 62)
+[2025-08-18 13:10:24.035] 🐛 Added audio chunk: 1372 bytes (total chunks: 63)
+[2025-08-18 13:10:24.035] 🐛 Added audio chunk: 1378 bytes (total chunks: 64)
+[2025-08-18 13:10:24.035] 🐛 Added audio chunk: 1378 bytes (total chunks: 65)
+[2025-08-18 13:10:24.039] 🐛 Added audio chunk: 1378 bytes (total chunks: 66)
+[2025-08-18 13:10:24.039] 🐛 Added audio chunk: 1378 bytes (total chunks: 67)
+[2025-08-18 13:10:24.039] 🐛 Added audio chunk: 1058 bytes (total chunks: 68)
+[2025-08-18 13:10:24.039] 🐛 Added audio chunk: 1373 bytes (total chunks: 69)
+[2025-08-18 13:10:24.040] 🐛 Added audio chunk: 1378 bytes (total chunks: 70)
+[2025-08-18 13:10:24.041] 🐛 Added audio chunk: 1339 bytes (total chunks: 71)
+[2025-08-18 13:10:24.045] 🐛 Added audio chunk: 1373 bytes (total chunks: 72)
+[2025-08-18 13:10:24.046] 🐛 Added audio chunk: 1378 bytes (total chunks: 73)
+[2025-08-18 13:10:24.046] 🐛 Added audio chunk: 1100 bytes (total chunks: 74)
+[2025-08-18 13:10:24.046] 🐛 Added audio chunk: 1373 bytes (total chunks: 75)
+[2025-08-18 13:10:24.048] 🐛 Added audio chunk: 1378 bytes (total chunks: 76)
+[2025-08-18 13:10:24.050] 🐛 Added audio chunk: 1339 bytes (total chunks: 77)
+[2025-08-18 13:10:24.052] 🐛 Added audio chunk: 1373 bytes (total chunks: 78)
+[2025-08-18 13:10:24.052] 🐛 Added audio chunk: 1378 bytes (total chunks: 79)
+[2025-08-18 13:10:24.053] 🐛 Added audio chunk: 1100 bytes (total chunks: 80)
+[2025-08-18 13:10:24.056] 🐛 Added audio chunk: 1373 bytes (total chunks: 81)
+[2025-08-18 13:10:24.056] 🐛 Added audio chunk: 1135 bytes (total chunks: 82)
+[2025-08-18 13:10:24.057] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"109","data":{"time":1755522623172,"type":"completion","payload":{"state":"content","content":" How"}}}
+[2025-08-18 13:10:24.057] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"110","data":{"time":1755522623172,"type":"completion","payload":{"state":"content","content":" can"}}}
+[2025-08-18 13:10:24.058] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"111","data":{"time":1755522623213,"type":"completion","payload":{"state":"content","content":" I"}}}
+[2025-08-18 13:10:24.058] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"112","data":{"time":1755522623214,"type":"completion","payload":{"state":"content","content":" assist"}}}
+[2025-08-18 13:10:24.059] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"113","data":{"time":1755522623308,"type":"completion","payload":{"state":"content","content":" you"}}}
+[2025-08-18 13:10:24.059] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"114","data":{"time":1755522623311,"type":"completion","payload":{"state":"content","content":" today"}}}
+[2025-08-18 13:10:24.060] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"115","data":{"time":1755522623324,"type":"completion","payload":{"state":"content","content":"?"}}}
+[2025-08-18 13:10:24.442] 🐛 Added audio chunk: 1213 bytes (total chunks: 83)
+[2025-08-18 13:10:24.442] 🐛 Added audio chunk: 1372 bytes (total chunks: 84)
+[2025-08-18 13:10:24.442] 🐛 Added audio chunk: 1378 bytes (total chunks: 85)
+[2025-08-18 13:10:24.445] 🐛 Added audio chunk: 1378 bytes (total chunks: 86)
+[2025-08-18 13:10:24.445] 🐛 Added audio chunk: 1186 bytes (total chunks: 87)
+[2025-08-18 13:10:24.445] 🐛 Added audio chunk: 205 bytes (total chunks: 88)
+[2025-08-18 13:10:24.445] 🐛 Added audio chunk: 1373 bytes (total chunks: 89)
+[2025-08-18 13:10:24.446] 🐛 Added audio chunk: 1378 bytes (total chunks: 90)
+[2025-08-18 13:10:24.447] 🐛 Added audio chunk: 1339 bytes (total chunks: 91)
+[2025-08-18 13:10:24.448] 🐛 Added audio chunk: 1373 bytes (total chunks: 92)
+[2025-08-18 13:10:24.449] 🐛 Added audio chunk: 1378 bytes (total chunks: 93)
+[2025-08-18 13:10:24.449] 🐛 Added audio chunk: 1100 bytes (total chunks: 94)
+[2025-08-18 13:10:24.450] 🐛 Added audio chunk: 1372 bytes (total chunks: 95)
+[2025-08-18 13:10:24.451] 🐛 Added audio chunk: 1378 bytes (total chunks: 96)
+[2025-08-18 13:10:24.451] 🐛 Added audio chunk: 1378 bytes (total chunks: 97)
+[2025-08-18 13:10:24.451] 🐛 Added audio chunk: 1378 bytes (total chunks: 98)
+[2025-08-18 13:10:24.452] 🐛 Added audio chunk: 1378 bytes (total chunks: 99)
+[2025-08-18 13:10:24.452] 🐛 Added audio chunk: 1057 bytes (total chunks: 100)
+[2025-08-18 13:10:24.452] 🐛 Added audio chunk: 1372 bytes (total chunks: 101)
+[2025-08-18 13:10:24.452] 🐛 Added audio chunk: 1378 bytes (total chunks: 102)
+[2025-08-18 13:10:24.452] 🐛 Added audio chunk: 1378 bytes (total chunks: 103)
+[2025-08-18 13:10:24.453] 🐛 Added audio chunk: 1378 bytes (total chunks: 104)
+[2025-08-18 13:10:24.453] 🐛 Added audio chunk: 1378 bytes (total chunks: 105)
+[2025-08-18 13:10:24.453] 🐛 Added audio chunk: 1058 bytes (total chunks: 106)
+[2025-08-18 13:10:24.454] 🐛 Added audio chunk: 1373 bytes (total chunks: 107)
+[2025-08-18 13:10:24.454] 🐛 Added audio chunk: 1378 bytes (total chunks: 108)
+[2025-08-18 13:10:24.455] 🐛 Added audio chunk: 592 bytes (total chunks: 109)
+[2025-08-18 13:10:24.455] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"143","data":{"time":1755522623329,"type":"completion","payload":{"state":"end"}}}
+[2025-08-18 13:10:24.456] 🐛 Audio streaming complete: 109 chunks, 142240 total bytes
+[2025-08-18 13:10:24.458] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"144","data":{"type":"audio","payload":{"encoding":"audio/mp3","content":"SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//uQxAACElWW/SYIzgL4vGABgySxAAQrRR6KIIFikJLMzszMFlNXr1698AJ6xhAgn+QQMkHJkIYgo9O7IIR/ZMnZAIQjGIRGtDn3ZO4h79kyaf/772hM8mTu7Jp8xDGIIY12TTsnd26d2TXD… [189756b]
+[2025-08-18 13:10:24.460] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"145","data":{"time":1755522623330,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"type":"agent","level":"debug","message":"ai result","context":"Agent","metadata":… [8220b]
+[2025-08-18 13:10:24.460] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"146","data":{"time":1755522623330,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"level":"info","message":"resources consumption","context":"Agent","metadata":{"mo… [472b]
+[2025-08-18 13:10:24.461] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"147","data":{"time":1755522623332,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"level":"debug","message":"successfully executed","context":"Agent","metadata":{"l… [316b]
+[2025-08-18 13:10:24.462] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"148","data":{"time":1755522623728,"type":"debug","payload":{"level":"info","message":"resources consumption","context":"TTS","metadata":{"model":"TTS","provider":"elevenlabs","voice":"elevenlabs:eleven_turbo_v2_5:pqHfZKP75CvOlQylNhV4","postMultiplierTokensConsumption":{"total"… [309b]
+[2025-08-18 13:10:24.462] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"149","data":{"time":1755522624172,"type":"debug","payload":{"level":"info","message":"resources consumption","context":"TTS","metadata":{"model":"TTS","provider":"elevenlabs","voice":"elevenlabs:eleven_turbo_v2_5:pqHfZKP75CvOlQylNhV4","postMultiplierTokensConsumption":{"total"… [309b]
+[2025-08-18 13:10:24.462] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"150","data":{"time":1755522624556,"type":"debug","payload":{"level":"info","message":"resources consumption","context":"TTS","metadata":{"model":"TTS","provider":"elevenlabs","voice":"elevenlabs:eleven_turbo_v2_5:pqHfZKP75CvOlQylNhV4","postMultiplierTokensConsumption":{"total"… [309b]
+[2025-08-18 13:10:24.462] 🐛 WS → client (cid=u06zpx): {"event":"responseDone"}
+[2025-08-18 13:10:24.466] 🐛 VF ◀ stream ended (SSE events: 151)
+[2025-08-18 13:10:36.158] 🐛 WS ← client [cid=u06zpx] {"event":"commandStream","data":{"userID":"ebsi_pheonix","text":"is this thing on"}}
+[2025-08-18 13:10:36.164] ℹ️ VF ▶ stream POST https://general-runtime.empyrean.voiceflow.com/v2/project/688a31725e1ce233d3148786/user/ebsi_pheonix/interact/stream?audio_events=true&completion_events=true
+[2025-08-18 13:10:36.451] ℹ️ VF ◀ status 200 OK
+[2025-08-18 13:10:36.451] 🐛 VF ◀ content-type text/event-stream
+[2025-08-18 13:10:36.469] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"1","data":{"time":1755522636575,"type":"debug","payload":{"level":"debug","message":"rag - <pre>Top 1:<br/>None (100%)</pre>","context":"Intent prediction"}}}
+[2025-08-18 13:10:36.469] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"2","data":{"time":1755522636576,"type":"debug","payload":{"level":"info","message":"completed - \"None\"","context":"Intent prediction","metadata":{"intent":"None","confidence":1}}}}
+[2025-08-18 13:10:36.470] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"3","data":{"time":1755522636577,"type":"debug","payload":{"level":"info","message":"intent \"None\" matched","context":"Runtime","metadata":{"confidence":1}}}}
+[2025-08-18 13:10:36.472] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"4","data":{"time":1755522636577,"type":"block","payload":{"blockID":"67db2b51c6c175f16d898090"}}}
+[2025-08-18 13:10:36.472] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"5","data":{"time":1755522636579,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"level":"debug","message":"starting execution","context":"Agent","metadata":{"tools"… [534b]
+[2025-08-18 13:10:37.315] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"6","data":{"time":1755522637439,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"level":"debug","message":"first chunk received","context":"Agent","metadata":{"late… [312b]
+[2025-08-18 13:10:37.316] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"7","data":{"time":1755522637439,"type":"completion","payload":{"state":"start","ai":true}}}
+[2025-08-18 13:10:37.317] 🐛 Audio streaming started
+[2025-08-18 13:10:37.317] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"9","data":{"time":1755522637439,"type":"completion","payload":{"state":"content","content":"Yes"}}}
+[2025-08-18 13:10:37.318] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"10","data":{"time":1755522637446,"type":"completion","payload":{"state":"content","content":","}}}
+[2025-08-18 13:10:37.319] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"11","data":{"time":1755522637446,"type":"completion","payload":{"state":"content","content":" it"}}}
+[2025-08-18 13:10:37.330] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"12","data":{"time":1755522637455,"type":"completion","payload":{"state":"content","content":"’s"}}}
+[2025-08-18 13:10:37.332] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"13","data":{"time":1755522637455,"type":"completion","payload":{"state":"content","content":" on"}}}
+[2025-08-18 13:10:37.332] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"14","data":{"time":1755522637456,"type":"completion","payload":{"state":"content","content":"!"}}}
+[2025-08-18 13:10:37.632] 🐛 Added audio chunk: 1372 bytes (total chunks: 1)
+[2025-08-18 13:10:37.633] 🐛 Added audio chunk: 1378 bytes (total chunks: 2)
+[2025-08-18 13:10:37.633] 🐛 Added audio chunk: 1378 bytes (total chunks: 3)
+[2025-08-18 13:10:37.634] 🐛 Added audio chunk: 1175 bytes (total chunks: 4)
+[2025-08-18 13:10:37.636] 🐛 Added audio chunk: 1373 bytes (total chunks: 5)
+[2025-08-18 13:10:37.636] 🐛 Added audio chunk: 56 bytes (total chunks: 6)
+[2025-08-18 13:10:37.667] 🐛 Added audio chunk: 1372 bytes (total chunks: 7)
+[2025-08-18 13:10:37.667] 🐛 Added audio chunk: 1378 bytes (total chunks: 8)
+[2025-08-18 13:10:37.668] 🐛 Added audio chunk: 1378 bytes (total chunks: 9)
+[2025-08-18 13:10:37.668] 🐛 Added audio chunk: 1378 bytes (total chunks: 10)
+[2025-08-18 13:10:37.668] 🐛 Added audio chunk: 1378 bytes (total chunks: 11)
+[2025-08-18 13:10:37.669] 🐛 Added audio chunk: 1057 bytes (total chunks: 12)
+[2025-08-18 13:10:37.669] 🐛 Added audio chunk: 1372 bytes (total chunks: 13)
+[2025-08-18 13:10:37.674] 🐛 Added audio chunk: 1378 bytes (total chunks: 14)
+[2025-08-18 13:10:37.676] 🐛 Added audio chunk: 1378 bytes (total chunks: 15)
+[2025-08-18 13:10:37.677] 🐛 Added audio chunk: 1378 bytes (total chunks: 16)
+[2025-08-18 13:10:37.677] 🐛 Added audio chunk: 346 bytes (total chunks: 17)
+[2025-08-18 13:10:37.677] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"32","data":{"time":1755522637461,"type":"completion","payload":{"state":"content","content":" How"}}}
+[2025-08-18 13:10:37.678] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"33","data":{"time":1755522637462,"type":"completion","payload":{"state":"content","content":" can"}}}
+[2025-08-18 13:10:37.679] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"34","data":{"time":1755522637462,"type":"completion","payload":{"state":"content","content":" I"}}}
+[2025-08-18 13:10:37.679] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"35","data":{"time":1755522637501,"type":"completion","payload":{"state":"content","content":" help"}}}
+[2025-08-18 13:10:37.679] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"36","data":{"time":1755522637503,"type":"completion","payload":{"state":"content","content":" you"}}}
+[2025-08-18 13:10:37.679] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"37","data":{"time":1755522637507,"type":"completion","payload":{"state":"content","content":" today"}}}
+[2025-08-18 13:10:37.679] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"38","data":{"time":1755522637507,"type":"completion","payload":{"state":"content","content":"?"}}}
+[2025-08-18 13:10:37.950] 🐛 Added audio chunk: 1213 bytes (total chunks: 18)
+[2025-08-18 13:10:37.951] 🐛 Added audio chunk: 1372 bytes (total chunks: 19)
+[2025-08-18 13:10:37.951] 🐛 Added audio chunk: 1378 bytes (total chunks: 20)
+[2025-08-18 13:10:37.952] 🐛 Added audio chunk: 1378 bytes (total chunks: 21)
+[2025-08-18 13:10:37.952] 🐛 Added audio chunk: 1378 bytes (total chunks: 22)
+[2025-08-18 13:10:37.957] 🐛 Added audio chunk: 13 bytes (total chunks: 23)
+[2025-08-18 13:10:37.958] 🐛 Added audio chunk: 1373 bytes (total chunks: 24)
+[2025-08-18 13:10:37.958] 🐛 Added audio chunk: 1378 bytes (total chunks: 25)
+[2025-08-18 13:10:37.958] 🐛 Added audio chunk: 1339 bytes (total chunks: 26)
+[2025-08-18 13:10:37.984] 🐛 Added audio chunk: 1373 bytes (total chunks: 27)
+[2025-08-18 13:10:37.984] 🐛 Added audio chunk: 1378 bytes (total chunks: 28)
+[2025-08-18 13:10:37.985] 🐛 Added audio chunk: 1100 bytes (total chunks: 29)
+[2025-08-18 13:10:37.986] 🐛 Added audio chunk: 1373 bytes (total chunks: 30)
+[2025-08-18 13:10:37.986] 🐛 Added audio chunk: 1378 bytes (total chunks: 31)
+[2025-08-18 13:10:37.987] 🐛 Added audio chunk: 1332 bytes (total chunks: 32)
+[2025-08-18 13:10:37.987] 🐛 Added audio chunk: 1373 bytes (total chunks: 33)
+[2025-08-18 13:10:37.988] 🐛 Added audio chunk: 1378 bytes (total chunks: 34)
+[2025-08-18 13:10:37.988] 🐛 Added audio chunk: 1107 bytes (total chunks: 35)
+[2025-08-18 13:10:37.990] 🐛 Added audio chunk: 1373 bytes (total chunks: 36)
+[2025-08-18 13:10:37.991] 🐛 Added audio chunk: 1058 bytes (total chunks: 37)
+[2025-08-18 13:10:37.991] 🐛 Added audio chunk: 77 bytes (total chunks: 38)
+[2025-08-18 13:10:37.991] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"60","data":{"time":1755522637518,"type":"completion","payload":{"state":"end"}}}
+[2025-08-18 13:10:37.992] 🐛 Audio streaming complete: 38 chunks, 45647 total bytes
+[2025-08-18 13:10:37.993] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"61","data":{"type":"audio","payload":{"encoding":"audio/mp3","content":"SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//uQxAAAEgma/yMkwAJeLyGo9hn4AJACAmuCwcEycBpmIYYQQ9ng4DJoQ5MmTT2CZO9u7uyEQQIECBBCzyZMmTJk7iIIIZ/7u/4j9oMIIfTCF3Z5O/7iIiO/a972TJ72iIIEIiLsnd293He7+… [60963b]
+[2025-08-18 13:10:37.994] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"62","data":{"time":1755522637519,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"type":"agent","level":"debug","message":"ai result","context":"Agent","metadata":{… [8147b]
+[2025-08-18 13:10:37.994] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"63","data":{"time":1755522637519,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"level":"info","message":"resources consumption","context":"Agent","metadata":{"mod… [471b]
+[2025-08-18 13:10:37.995] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"64","data":{"time":1755522637521,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"level":"debug","message":"successfully executed","context":"Agent","metadata":{"la… [314b]
+[2025-08-18 13:10:37.995] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"65","data":{"time":1755522637771,"type":"debug","payload":{"level":"info","message":"resources consumption","context":"TTS","metadata":{"model":"TTS","provider":"elevenlabs","voice":"elevenlabs:eleven_turbo_v2_5:pqHfZKP75CvOlQylNhV4","postMultiplierTokensConsumption":{"total":… [308b]
+[2025-08-18 13:10:37.995] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"66","data":{"time":1755522638095,"type":"debug","payload":{"level":"info","message":"resources consumption","context":"TTS","metadata":{"model":"TTS","provider":"elevenlabs","voice":"elevenlabs:eleven_turbo_v2_5:pqHfZKP75CvOlQylNhV4","postMultiplierTokensConsumption":{"total":… [308b]
+[2025-08-18 13:10:37.996] 🐛 WS → client (cid=u06zpx): {"event":"responseDone"}
+[2025-08-18 13:10:37.997] 🐛 VF ◀ stream ended (SSE events: 67)
+[2025-08-18 13:10:44.844] 🐛 WS ← client [cid=u06zpx] {"event":"commandStream","data":{"userID":"ebsi_pheonix","text":"who is ritual"}}
+[2025-08-18 13:10:44.845] ℹ️ VF ▶ stream POST https://general-runtime.empyrean.voiceflow.com/v2/project/688a31725e1ce233d3148786/user/ebsi_pheonix/interact/stream?audio_events=true&completion_events=true
+[2025-08-18 13:10:45.184] ℹ️ VF ◀ status 200 OK
+[2025-08-18 13:10:45.184] 🐛 VF ◀ content-type text/event-stream
+[2025-08-18 13:10:45.195] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"1","data":{"time":1755522645309,"type":"debug","payload":{"level":"debug","message":"rag - <pre>Top 1:<br/>None (100%)</pre>","context":"Intent prediction"}}}
+[2025-08-18 13:10:45.202] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"2","data":{"time":1755522645310,"type":"debug","payload":{"level":"info","message":"completed - \"None\"","context":"Intent prediction","metadata":{"intent":"None","confidence":1}}}}
+[2025-08-18 13:10:45.203] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"3","data":{"time":1755522645312,"type":"debug","payload":{"level":"info","message":"intent \"None\" matched","context":"Runtime","metadata":{"confidence":1}}}}
+[2025-08-18 13:10:45.203] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"4","data":{"time":1755522645313,"type":"block","payload":{"blockID":"67db2b51c6c175f16d898090"}}}
+[2025-08-18 13:10:45.203] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"5","data":{"time":1755522645317,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"level":"debug","message":"starting execution","context":"Agent","metadata":{"tools"… [534b]
+[2025-08-18 13:10:46.645] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"6","data":{"time":1755522646772,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"level":"debug","message":"first chunk received","context":"Agent","metadata":{"late… [313b]
+[2025-08-18 13:10:46.647] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"7","data":{"time":1755522646772,"type":"completion","payload":{"state":"start","ai":true}}}
+[2025-08-18 13:10:46.648] 🐛 Audio streaming started
+[2025-08-18 13:10:46.648] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"9","data":{"time":1755522646772,"type":"completion","payload":{"state":"content","content":"Sure"}}}
+[2025-08-18 13:10:46.719] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"10","data":{"time":1755522646844,"type":"completion","payload":{"state":"content","content":" thing"}}}
+[2025-08-18 13:10:46.731] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"11","data":{"time":1755522646845,"type":"completion","payload":{"state":"content","content":"!"}}}
+[2025-08-18 13:10:47.051] 🐛 Added audio chunk: 1213 bytes (total chunks: 1)
+[2025-08-18 13:10:47.051] 🐛 Added audio chunk: 1372 bytes (total chunks: 2)
+[2025-08-18 13:10:47.052] 🐛 Added audio chunk: 1378 bytes (total chunks: 3)
+[2025-08-18 13:10:47.052] 🐛 Added audio chunk: 1378 bytes (total chunks: 4)
+[2025-08-18 13:10:47.053] 🐛 Added audio chunk: 1378 bytes (total chunks: 5)
+[2025-08-18 13:10:47.074] 🐛 Added audio chunk: 13 bytes (total chunks: 6)
+[2025-08-18 13:10:47.074] 🐛 Added audio chunk: 1213 bytes (total chunks: 7)
+[2025-08-18 13:10:47.074] 🐛 Added audio chunk: 1372 bytes (total chunks: 8)
+[2025-08-18 13:10:47.075] 🐛 Added audio chunk: 1378 bytes (total chunks: 9)
+[2025-08-18 13:10:47.075] 🐛 Added audio chunk: 1378 bytes (total chunks: 10)
+[2025-08-18 13:10:47.076] 🐛 Added audio chunk: 1378 bytes (total chunks: 11)
+[2025-08-18 13:10:47.076] 🐛 Added audio chunk: 1222 bytes (total chunks: 12)
+[2025-08-18 13:10:47.076] 🐛 Added audio chunk: 1373 bytes (total chunks: 13)
+[2025-08-18 13:10:47.077] 🐛 Added audio chunk: 1135 bytes (total chunks: 14)
+[2025-08-18 13:10:47.077] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"26","data":{"time":1755522646921,"type":"completion","payload":{"state":"content","content":" Let"}}}
+[2025-08-18 13:10:47.078] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"27","data":{"time":1755522646922,"type":"completion","payload":{"state":"content","content":" me"}}}
+[2025-08-18 13:10:47.079] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"28","data":{"time":1755522646978,"type":"completion","payload":{"state":"content","content":" find"}}}
+[2025-08-18 13:10:47.079] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"29","data":{"time":1755522646979,"type":"completion","payload":{"state":"content","content":" that"}}}
+[2025-08-18 13:10:47.080] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"30","data":{"time":1755522647021,"type":"completion","payload":{"state":"content","content":" information"}}}
+[2025-08-18 13:10:47.080] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"31","data":{"time":1755522647021,"type":"completion","payload":{"state":"content","content":" for"}}}
+[2025-08-18 13:10:47.080] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"32","data":{"time":1755522647027,"type":"completion","payload":{"state":"content","content":" you"}}}
+[2025-08-18 13:10:47.080] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"33","data":{"time":1755522647027,"type":"completion","payload":{"state":"content","content":"."}}}
+[2025-08-18 13:10:47.451] 🐛 Added audio chunk: 1213 bytes (total chunks: 15)
+[2025-08-18 13:10:47.451] 🐛 Added audio chunk: 1372 bytes (total chunks: 16)
+[2025-08-18 13:10:47.452] 🐛 Added audio chunk: 1378 bytes (total chunks: 17)
+[2025-08-18 13:10:47.452] 🐛 Added audio chunk: 1378 bytes (total chunks: 18)
+[2025-08-18 13:10:47.452] 🐛 Added audio chunk: 1378 bytes (total chunks: 19)
+[2025-08-18 13:10:47.452] 🐛 Added audio chunk: 13 bytes (total chunks: 20)
+[2025-08-18 13:10:47.453] 🐛 Added audio chunk: 1213 bytes (total chunks: 21)
+[2025-08-18 13:10:47.453] 🐛 Added audio chunk: 1372 bytes (total chunks: 22)
+[2025-08-18 13:10:47.454] 🐛 Added audio chunk: 1378 bytes (total chunks: 23)
+[2025-08-18 13:10:47.456] 🐛 Added audio chunk: 1378 bytes (total chunks: 24)
+[2025-08-18 13:10:47.481] 🐛 Added audio chunk: 1378 bytes (total chunks: 25)
+[2025-08-18 13:10:47.481] 🐛 Added audio chunk: 1222 bytes (total chunks: 26)
+[2025-08-18 13:10:47.482] 🐛 Added audio chunk: 1205 bytes (total chunks: 27)
+[2025-08-18 13:10:47.482] 🐛 Added audio chunk: 1372 bytes (total chunks: 28)
+[2025-08-18 13:10:47.483] 🐛 Added audio chunk: 1378 bytes (total chunks: 29)
+[2025-08-18 13:10:47.483] 🐛 Added audio chunk: 1378 bytes (total chunks: 30)
+[2025-08-18 13:10:47.483] 🐛 Added audio chunk: 1378 bytes (total chunks: 31)
+[2025-08-18 13:10:47.483] 🐛 Added audio chunk: 1230 bytes (total chunks: 32)
+[2025-08-18 13:10:47.483] 🐛 Added audio chunk: 1209 bytes (total chunks: 33)
+[2025-08-18 13:10:47.484] 🐛 Added audio chunk: 1372 bytes (total chunks: 34)
+[2025-08-18 13:10:47.484] 🐛 Added audio chunk: 1378 bytes (total chunks: 35)
+[2025-08-18 13:10:47.484] 🐛 Added audio chunk: 1378 bytes (total chunks: 36)
+[2025-08-18 13:10:47.484] 🐛 Added audio chunk: 1364 bytes (total chunks: 37)
+[2025-08-18 13:10:47.484] 🐛 Added audio chunk: 1373 bytes (total chunks: 38)
+[2025-08-18 13:10:47.485] 🐛 Added audio chunk: 1378 bytes (total chunks: 39)
+[2025-08-18 13:10:47.497] 🐛 Added audio chunk: 579 bytes (total chunks: 40)
+[2025-08-18 13:10:47.497] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"60","data":{"time":1755522647039,"type":"completion","payload":{"state":"end"}}}
+[2025-08-18 13:10:47.498] 🐛 Audio streaming complete: 40 chunks, 49826 total bytes
+[2025-08-18 13:10:47.498] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"61","data":{"type":"audio","payload":{"encoding":"audio/mp3","content":"SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//uQxAAC1MVk/gMk1ErdMaDVhhrxHkJAYDC7BwGgQjHvWeLs8BgMLJ20d0ba4rFYIAgCAAAQBAEAQFAWAwGAwGAyae2eDgMBgMLTsghEGAAIIAABhad3dnpxERERGd7u7u98REGR/ER4jP/7s… [66535b]
+[2025-08-18 13:10:47.500] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"62","data":{"time":1755522647040,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"type":"agent","level":"debug","message":"ai result","context":"Agent","metadata":{… [8155b]
+[2025-08-18 13:10:47.501] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"63","data":{"time":1755522647040,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"level":"info","message":"resources consumption","context":"Agent","metadata":{"mod… [471b]
+[2025-08-18 13:10:47.501] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"64","data":{"time":1755522647048,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"level":"debug","message":"successfully executed","context":"Agent","metadata":{"la… [315b]
+[2025-08-18 13:10:47.501] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"65","data":{"time":1755522647198,"type":"debug","payload":{"level":"info","message":"resources consumption","context":"TTS","metadata":{"model":"TTS","provider":"elevenlabs","voice":"elevenlabs:eleven_turbo_v2_5:pqHfZKP75CvOlQylNhV4","postMultiplierTokensConsumption":{"total":… [308b]
+[2025-08-18 13:10:47.501] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"66","data":{"time":1755522647611,"type":"debug","payload":{"level":"info","message":"resources consumption","context":"TTS","metadata":{"model":"TTS","provider":"elevenlabs","voice":"elevenlabs:eleven_turbo_v2_5:pqHfZKP75CvOlQylNhV4","postMultiplierTokensConsumption":{"total":… [308b]
+[2025-08-18 13:10:47.504] 🐛 WS → client (cid=u06zpx): {"event":"responseDone"}
+[2025-08-18 13:10:47.506] 🐛 VF ◀ stream ended (SSE events: 67)
+[2025-08-18 13:10:56.781] 🐛 WS ← client [cid=u06zpx] {"event":"commandStream","data":{"userID":"ebsi_pheonix","text":"who is rich wolf"}}
+[2025-08-18 13:10:56.781] ℹ️ VF ▶ stream POST https://general-runtime.empyrean.voiceflow.com/v2/project/688a31725e1ce233d3148786/user/ebsi_pheonix/interact/stream?audio_events=true&completion_events=true
+[2025-08-18 13:10:57.177] ℹ️ VF ◀ status 200 OK
+[2025-08-18 13:10:57.177] 🐛 VF ◀ content-type text/event-stream
+[2025-08-18 13:10:57.192] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"1","data":{"time":1755522657293,"type":"debug","payload":{"level":"debug","message":"rag - <pre>Top 1:<br/>None (100%)</pre>","context":"Intent prediction"}}}
+[2025-08-18 13:10:57.193] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"2","data":{"time":1755522657295,"type":"debug","payload":{"level":"info","message":"completed - \"None\"","context":"Intent prediction","metadata":{"intent":"None","confidence":1}}}}
+[2025-08-18 13:10:57.193] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"3","data":{"time":1755522657297,"type":"debug","payload":{"level":"info","message":"intent \"None\" matched","context":"Runtime","metadata":{"confidence":1}}}}
+[2025-08-18 13:10:57.193] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"4","data":{"time":1755522657298,"type":"block","payload":{"blockID":"67db2b51c6c175f16d898090"}}}
+[2025-08-18 13:10:57.194] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"5","data":{"time":1755522657301,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"level":"debug","message":"starting execution","context":"Agent","metadata":{"tools"… [534b]
+[2025-08-18 13:10:58.503] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"6","data":{"time":1755522658626,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"level":"info","message":"resources consumption","context":"Agent","metadata":{"mode… [464b]
+[2025-08-18 13:10:58.505] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"7","data":{"time":1755522658627,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"level":"debug","message":"calling tools","context":"Agent","metadata":{"tools":[{"i… [371b]
+[2025-08-18 13:10:58.940] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"8","data":{"time":1755522658838,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"level":"debug","message":"knowledge base search completed","context":"Agent","metad… [365b]
+[2025-08-18 13:11:00.526] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"9","data":{"time":1755522660651,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"level":"debug","message":"first chunk received","context":"Agent","metadata":{"late… [313b]
+[2025-08-18 13:11:00.526] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"10","data":{"time":1755522660651,"type":"completion","payload":{"state":"start","ai":true}}}
+[2025-08-18 13:11:00.527] 🐛 Audio streaming started
+[2025-08-18 13:11:00.527] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"12","data":{"time":1755522660651,"type":"completion","payload":{"state":"content","content":"I"}}}
+[2025-08-18 13:11:00.540] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"13","data":{"time":1755522660666,"type":"completion","payload":{"state":"content","content":" couldn't"}}}
+[2025-08-18 13:11:00.541] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"14","data":{"time":1755522660666,"type":"completion","payload":{"state":"content","content":" find"}}}
+[2025-08-18 13:11:00.597] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"15","data":{"time":1755522660724,"type":"completion","payload":{"state":"content","content":" specific"}}}
+[2025-08-18 13:11:00.599] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"16","data":{"time":1755522660725,"type":"completion","payload":{"state":"content","content":" information"}}}
+[2025-08-18 13:11:00.609] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"17","data":{"time":1755522660738,"type":"completion","payload":{"state":"content","content":" about"}}}
+[2025-08-18 13:11:00.611] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"18","data":{"time":1755522660739,"type":"completion","payload":{"state":"content","content":" Rich"}}}
+[2025-08-18 13:11:00.639] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"19","data":{"time":1755522660768,"type":"completion","payload":{"state":"content","content":" Wolf"}}}
+[2025-08-18 13:11:00.643] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"20","data":{"time":1755522660769,"type":"completion","payload":{"state":"content","content":"."}}}
+[2025-08-18 13:11:00.966] 🐛 Added audio chunk: 1372 bytes (total chunks: 1)
+[2025-08-18 13:11:00.966] 🐛 Added audio chunk: 1378 bytes (total chunks: 2)
+[2025-08-18 13:11:00.972] 🐛 Added audio chunk: 1378 bytes (total chunks: 3)
+[2025-08-18 13:11:00.973] 🐛 Added audio chunk: 1378 bytes (total chunks: 4)
+[2025-08-18 13:11:00.975] 🐛 Added audio chunk: 1226 bytes (total chunks: 5)
+[2025-08-18 13:11:00.987] 🐛 Added audio chunk: 1373 bytes (total chunks: 6)
+[2025-08-18 13:11:00.988] 🐛 Added audio chunk: 1378 bytes (total chunks: 7)
+[2025-08-18 13:11:00.995] 🐛 Added audio chunk: 1339 bytes (total chunks: 8)
+[2025-08-18 13:11:00.997] 🐛 Added audio chunk: 1373 bytes (total chunks: 9)
+[2025-08-18 13:11:00.998] 🐛 Added audio chunk: 1378 bytes (total chunks: 10)
+[2025-08-18 13:11:00.998] 🐛 Added audio chunk: 1100 bytes (total chunks: 11)
+[2025-08-18 13:11:00.998] 🐛 Added audio chunk: 1209 bytes (total chunks: 12)
+[2025-08-18 13:11:00.999] 🐛 Added audio chunk: 1372 bytes (total chunks: 13)
+[2025-08-18 13:11:00.999] 🐛 Added audio chunk: 1378 bytes (total chunks: 14)
+[2025-08-18 13:11:00.999] 🐛 Added audio chunk: 1378 bytes (total chunks: 15)
+[2025-08-18 13:11:01.000] 🐛 Added audio chunk: 1378 bytes (total chunks: 16)
+[2025-08-18 13:11:01.000] 🐛 Added audio chunk: 1226 bytes (total chunks: 17)
+[2025-08-18 13:11:01.000] 🐛 Added audio chunk: 1373 bytes (total chunks: 18)
+[2025-08-18 13:11:01.001] 🐛 Added audio chunk: 1378 bytes (total chunks: 19)
+[2025-08-18 13:11:01.013] 🐛 Added audio chunk: 1339 bytes (total chunks: 20)
+[2025-08-18 13:11:01.014] 🐛 Added audio chunk: 1373 bytes (total chunks: 21)
+[2025-08-18 13:11:01.014] 🐛 Added audio chunk: 1378 bytes (total chunks: 22)
+[2025-08-18 13:11:01.015] 🐛 Added audio chunk: 1101 bytes (total chunks: 23)
+[2025-08-18 13:11:01.015] 🐛 Added audio chunk: 1209 bytes (total chunks: 24)
+[2025-08-18 13:11:01.015] 🐛 Added audio chunk: 1372 bytes (total chunks: 25)
+[2025-08-18 13:11:01.015] 🐛 Added audio chunk: 1378 bytes (total chunks: 26)
+[2025-08-18 13:11:01.016] 🐛 Added audio chunk: 1378 bytes (total chunks: 27)
+[2025-08-18 13:11:01.017] 🐛 Added audio chunk: 1378 bytes (total chunks: 28)
+[2025-08-18 13:11:01.017] 🐛 Added audio chunk: 1226 bytes (total chunks: 29)
+[2025-08-18 13:11:01.017] 🐛 Added audio chunk: 1372 bytes (total chunks: 30)
+[2025-08-18 13:11:01.018] 🐛 Added audio chunk: 1378 bytes (total chunks: 31)
+[2025-08-18 13:11:01.018] 🐛 Added audio chunk: 1378 bytes (total chunks: 32)
+[2025-08-18 13:11:01.023] 🐛 Added audio chunk: 1171 bytes (total chunks: 33)
+[2025-08-18 13:11:01.023] 🐛 Added audio chunk: 1373 bytes (total chunks: 34)
+[2025-08-18 13:11:01.024] 🐛 Added audio chunk: 1269 bytes (total chunks: 35)
+[2025-08-18 13:11:01.025] 🐛 Added audio chunk: 1373 bytes (total chunks: 36)
+[2025-08-18 13:11:01.026] 🐛 Added audio chunk: 1378 bytes (total chunks: 37)
+[2025-08-18 13:11:01.027] 🐛 Added audio chunk: 1332 bytes (total chunks: 38)
+[2025-08-18 13:11:01.028] 🐛 Added audio chunk: 1373 bytes (total chunks: 39)
+[2025-08-18 13:11:01.028] 🐛 Added audio chunk: 1378 bytes (total chunks: 40)
+[2025-08-18 13:11:01.028] 🐛 Added audio chunk: 689 bytes (total chunks: 41)
+[2025-08-18 13:11:01.028] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"62","data":{"time":1755522660808,"type":"completion","payload":{"state":"content","content":" If"}}}
+[2025-08-18 13:11:01.028] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"63","data":{"time":1755522660809,"type":"completion","payload":{"state":"content","content":" you"}}}
+[2025-08-18 13:11:01.029] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"64","data":{"time":1755522660849,"type":"completion","payload":{"state":"content","content":" have"}}}
+[2025-08-18 13:11:01.029] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"65","data":{"time":1755522660850,"type":"completion","payload":{"state":"content","content":" any"}}}
+[2025-08-18 13:11:01.029] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"66","data":{"time":1755522660866,"type":"completion","payload":{"state":"content","content":" other"}}}
+[2025-08-18 13:11:01.029] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"67","data":{"time":1755522660867,"type":"completion","payload":{"state":"content","content":" questions"}}}
+[2025-08-18 13:11:01.029] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"68","data":{"time":1755522660893,"type":"completion","payload":{"state":"content","content":" or"}}}
+[2025-08-18 13:11:01.030] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"69","data":{"time":1755522660894,"type":"completion","payload":{"state":"content","content":" need"}}}
+[2025-08-18 13:11:01.030] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"70","data":{"time":1755522660923,"type":"completion","payload":{"state":"content","content":" assistance"}}}
+[2025-08-18 13:11:01.030] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"71","data":{"time":1755522660924,"type":"completion","payload":{"state":"content","content":" with"}}}
+[2025-08-18 13:11:01.030] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"72","data":{"time":1755522660954,"type":"completion","payload":{"state":"content","content":" something"}}}
+[2025-08-18 13:11:01.030] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"73","data":{"time":1755522660955,"type":"completion","payload":{"state":"content","content":" else"}}}
+[2025-08-18 13:11:01.031] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"74","data":{"time":1755522660987,"type":"completion","payload":{"state":"content","content":","}}}
+[2025-08-18 13:11:01.031] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"75","data":{"time":1755522660987,"type":"completion","payload":{"state":"content","content":" feel"}}}
+[2025-08-18 13:11:01.031] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"76","data":{"time":1755522661036,"type":"completion","payload":{"state":"content","content":" free"}}}
+[2025-08-18 13:11:01.031] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"77","data":{"time":1755522661036,"type":"completion","payload":{"state":"content","content":" to"}}}
+[2025-08-18 13:11:01.031] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"78","data":{"time":1755522661036,"type":"completion","payload":{"state":"content","content":" ask"}}}
+[2025-08-18 13:11:01.031] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"79","data":{"time":1755522661037,"type":"completion","payload":{"state":"content","content":"!"}}}
+[2025-08-18 13:11:01.471] 🐛 Added audio chunk: 1373 bytes (total chunks: 42)
+[2025-08-18 13:11:01.472] 🐛 Added audio chunk: 1378 bytes (total chunks: 43)
+[2025-08-18 13:11:01.472] 🐛 Added audio chunk: 1339 bytes (total chunks: 44)
+[2025-08-18 13:11:01.472] 🐛 Added audio chunk: 1373 bytes (total chunks: 45)
+[2025-08-18 13:11:01.473] 🐛 Added audio chunk: 1269 bytes (total chunks: 46)
+[2025-08-18 13:11:01.485] 🐛 Added audio chunk: 1373 bytes (total chunks: 47)
+[2025-08-18 13:11:01.485] 🐛 Added audio chunk: 1378 bytes (total chunks: 48)
+[2025-08-18 13:11:01.486] 🐛 Added audio chunk: 1339 bytes (total chunks: 49)
+[2025-08-18 13:11:01.486] 🐛 Added audio chunk: 1373 bytes (total chunks: 50)
+[2025-08-18 13:11:01.486] 🐛 Added audio chunk: 1378 bytes (total chunks: 51)
+[2025-08-18 13:11:01.487] 🐛 Added audio chunk: 1100 bytes (total chunks: 52)
+[2025-08-18 13:11:01.489] 🐛 Added audio chunk: 1373 bytes (total chunks: 53)
+[2025-08-18 13:11:01.489] 🐛 Added audio chunk: 1064 bytes (total chunks: 54)
+[2025-08-18 13:11:01.496] 🐛 Added audio chunk: 1372 bytes (total chunks: 55)
+[2025-08-18 13:11:01.496] 🐛 Added audio chunk: 1378 bytes (total chunks: 56)
+[2025-08-18 13:11:01.497] 🐛 Added audio chunk: 1378 bytes (total chunks: 57)
+[2025-08-18 13:11:01.497] 🐛 Added audio chunk: 1376 bytes (total chunks: 58)
+[2025-08-18 13:11:01.507] 🐛 Added audio chunk: 1373 bytes (total chunks: 59)
+[2025-08-18 13:11:01.517] 🐛 Added audio chunk: 1378 bytes (total chunks: 60)
+[2025-08-18 13:11:01.517] 🐛 Added audio chunk: 1339 bytes (total chunks: 61)
+[2025-08-18 13:11:01.517] 🐛 Added audio chunk: 1373 bytes (total chunks: 62)
+[2025-08-18 13:11:01.517] 🐛 Added audio chunk: 1378 bytes (total chunks: 63)
+[2025-08-18 13:11:01.521] 🐛 Added audio chunk: 1101 bytes (total chunks: 64)
+[2025-08-18 13:11:01.522] 🐛 Added audio chunk: 1372 bytes (total chunks: 65)
+[2025-08-18 13:11:01.523] 🐛 Added audio chunk: 1378 bytes (total chunks: 66)
+[2025-08-18 13:11:01.524] 🐛 Added audio chunk: 1378 bytes (total chunks: 67)
+[2025-08-18 13:11:01.524] 🐛 Added audio chunk: 1378 bytes (total chunks: 68)
+[2025-08-18 13:11:01.524] 🐛 Added audio chunk: 1378 bytes (total chunks: 69)
+[2025-08-18 13:11:01.526] 🐛 Added audio chunk: 1057 bytes (total chunks: 70)
+[2025-08-18 13:11:01.527] 🐛 Added audio chunk: 1373 bytes (total chunks: 71)
+[2025-08-18 13:11:01.528] 🐛 Added audio chunk: 1378 bytes (total chunks: 72)
+[2025-08-18 13:11:01.529] 🐛 Added audio chunk: 1339 bytes (total chunks: 73)
+[2025-08-18 13:11:01.529] 🐛 Added audio chunk: 1373 bytes (total chunks: 74)
+[2025-08-18 13:11:01.529] 🐛 Added audio chunk: 1378 bytes (total chunks: 75)
+[2025-08-18 13:11:01.532] 🐛 Added audio chunk: 1100 bytes (total chunks: 76)
+[2025-08-18 13:11:01.534] 🐛 Added audio chunk: 1373 bytes (total chunks: 77)
+[2025-08-18 13:11:01.535] 🐛 Added audio chunk: 1064 bytes (total chunks: 78)
+[2025-08-18 13:11:01.535] 🐛 Added audio chunk: 1372 bytes (total chunks: 79)
+[2025-08-18 13:11:01.536] 🐛 Added audio chunk: 1378 bytes (total chunks: 80)
+[2025-08-18 13:11:01.536] 🐛 Added audio chunk: 1378 bytes (total chunks: 81)
+[2025-08-18 13:11:01.536] 🐛 Added audio chunk: 1376 bytes (total chunks: 82)
+[2025-08-18 13:11:01.537] 🐛 Added audio chunk: 1213 bytes (total chunks: 83)
+[2025-08-18 13:11:01.537] 🐛 Added audio chunk: 1372 bytes (total chunks: 84)
+[2025-08-18 13:11:01.538] 🐛 Added audio chunk: 1378 bytes (total chunks: 85)
+[2025-08-18 13:11:01.538] 🐛 Added audio chunk: 1378 bytes (total chunks: 86)
+[2025-08-18 13:11:01.539] 🐛 Added audio chunk: 1378 bytes (total chunks: 87)
+[2025-08-18 13:11:01.539] 🐛 Added audio chunk: 1378 bytes (total chunks: 88)
+[2025-08-18 13:11:01.541] 🐛 Added audio chunk: 82 bytes (total chunks: 89)
+[2025-08-18 13:11:01.541] 🐛 Added audio chunk: 180 bytes (total chunks: 90)
+[2025-08-18 13:11:01.541] 🐛 Added audio chunk: 1213 bytes (total chunks: 91)
+[2025-08-18 13:11:01.541] 🐛 Added audio chunk: 1372 bytes (total chunks: 92)
+[2025-08-18 13:11:01.545] 🐛 Added audio chunk: 1378 bytes (total chunks: 93)
+[2025-08-18 13:11:01.545] 🐛 Added audio chunk: 1378 bytes (total chunks: 94)
+[2025-08-18 13:11:01.545] 🐛 Added audio chunk: 1378 bytes (total chunks: 95)
+[2025-08-18 13:11:01.545] 🐛 Added audio chunk: 1223 bytes (total chunks: 96)
+[2025-08-18 13:11:01.551] 🐛 Added audio chunk: 1213 bytes (total chunks: 97)
+[2025-08-18 13:11:01.551] 🐛 Added audio chunk: 1372 bytes (total chunks: 98)
+[2025-08-18 13:11:01.551] 🐛 Added audio chunk: 1378 bytes (total chunks: 99)
+[2025-08-18 13:11:01.551] 🐛 Added audio chunk: 1378 bytes (total chunks: 100)
+[2025-08-18 13:11:01.552] 🐛 Added audio chunk: 1378 bytes (total chunks: 101)
+[2025-08-18 13:11:01.552] 🐛 Added audio chunk: 1222 bytes (total chunks: 102)
+[2025-08-18 13:11:01.552] 🐛 Added audio chunk: 1372 bytes (total chunks: 103)
+[2025-08-18 13:11:01.552] 🐛 Added audio chunk: 1378 bytes (total chunks: 104)
+[2025-08-18 13:11:01.554] 🐛 Added audio chunk: 1378 bytes (total chunks: 105)
+[2025-08-18 13:11:01.555] 🐛 Added audio chunk: 1378 bytes (total chunks: 106)
+[2025-08-18 13:11:01.555] 🐛 Added audio chunk: 1378 bytes (total chunks: 107)
+[2025-08-18 13:11:01.562] 🐛 Added audio chunk: 1378 bytes (total chunks: 108)
+[2025-08-18 13:11:01.563] 🐛 Added audio chunk: 97 bytes (total chunks: 109)
+[2025-08-18 13:11:01.563] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"148","data":{"time":1755522661050,"type":"completion","payload":{"state":"end"}}}
+[2025-08-18 13:11:01.564] 🐛 Audio streaming complete: 109 chunks, 140941 total bytes
+[2025-08-18 13:11:01.565] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"149","data":{"type":"audio","payload":{"encoding":"audio/mp3","content":"SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//uQxAACFP2k9Keky8sJwV/JliQhAgAIlwhhNIbGc51q9Dy4HQyZNcjFZOgQIECBAwu3Bj5Oa4rJ0BAgh5zRo4o2yMVk5GFw2GAAhnhydkI//PAabtDg4DJ3cZdnkyaenkyadng4WmxiGNEQ… [188024b]
+[2025-08-18 13:11:01.566] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"150","data":{"time":1755522661051,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"type":"agent","level":"debug","message":"ai result","context":"Agent","metadata":… [8253b]
+[2025-08-18 13:11:01.566] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"151","data":{"time":1755522661052,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"level":"info","message":"resources consumption","context":"Agent","metadata":{"mo… [472b]
+[2025-08-18 13:11:01.567] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"152","data":{"time":1755522661054,"type":"debug","payload":{"ref":{"type":"agent","nodeID":"67db2b51c6c175f16d898090","agentID":"67db2b56cbe88befffef4623","diagramID":"64dbb6696a8fab0013dba194"},"level":"debug","message":"successfully executed","context":"Agent","metadata":{"l… [316b]
+[2025-08-18 13:11:01.567] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"153","data":{"time":1755522661133,"type":"debug","payload":{"level":"info","message":"resources consumption","context":"TTS","metadata":{"model":"TTS","provider":"elevenlabs","voice":"elevenlabs:eleven_turbo_v2_5:pqHfZKP75CvOlQylNhV4","postMultiplierTokensConsumption":{"total"… [309b]
+[2025-08-18 13:11:01.567] 🐛 WS → client (cid=u06zpx): {"event":"trace","id":"154","data":{"time":1755522661687,"type":"debug","payload":{"level":"info","message":"resources consumption","context":"TTS","metadata":{"model":"TTS","provider":"elevenlabs","voice":"elevenlabs:eleven_turbo_v2_5:pqHfZKP75CvOlQylNhV4","postMultiplierTokensConsumption":{"total"… [310b]
+[2025-08-18 13:11:01.571] 🐛 WS → client (cid=u06zpx): {"event":"responseDone"}
+[2025-08-18 13:11:01.572] 🐛 VF ◀ stream ended (SSE events: 155)

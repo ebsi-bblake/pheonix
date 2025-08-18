@@ -1,7 +1,39 @@
 import { chatState } from "./state.js";
-import { handleButtonPress, handleButtonRelease } from "./ui.js";
 
 let socket;
+
+/**
+ * Allow UI to register a resolver that we'll call when we receive responseDone.
+ * (UI sets it before sending a command; we call it once, then clear it.)
+ */
+export const setPlaybackResolver = (resolve) => {
+  chatState.set({ playbackResolve: resolve });
+};
+
+/**
+ * Convert base64 audio data to a blob URL
+ */
+const createAudioBlobFromBase64 = (base64Content, mimeType = "audio/mp3") => {
+  try {
+    // Remove data URL prefix if present
+    const cleanBase64 = base64Content.replace(/^data:audio\/[^;]+;base64,/, "");
+
+    // Convert base64 to binary
+    const binaryString = atob(cleanBase64);
+    const bytes = new Uint8Array(binaryString.length);
+
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    // Create blob and return URL
+    const blob = new Blob([bytes], { type: mimeType });
+    return URL.createObjectURL(blob);
+  } catch (error) {
+    console.error("Failed to create blob from base64:", error);
+    return null;
+  }
+};
 
 export const initSocket = (onResponse, onError) => {
   console.info("window.location.host", window.location.host);
@@ -16,57 +48,72 @@ export const initSocket = (onResponse, onError) => {
   };
 
   socket.onmessage = (e) => {
+    console.log("🔥 RAW MESSAGE RECEIVED:", e.data);
+
     let parsed;
     try {
       parsed = JSON.parse(e.data);
     } catch (err) {
-      console.error("WS ⇐ invalid JSON:", e.data);
+      console.error("WS ← invalid JSON:", e.data);
       return;
     }
 
-    const { event, data, id } = parsed;
+    console.log("🔥 PARSED MESSAGE:", parsed);
+
+    const { event, data } = parsed;
     const preview = JSON.stringify(parsed).slice(0, 260);
-    console.debug("WS ⇐", preview);
+    console.debug("WS ←", preview);
 
     if (event === "trace") {
       const t = data;
-      console.debug("TRACE:", {
-        id,
-        type: t?.type,
-        keys: Object.keys(t?.payload || {}),
-      });
 
+      // Optional transcript (only if you re-enable #transcript in index.html)
       if (t?.type === "text" && t?.payload?.message) {
         const el = document.createElement("div");
         el.textContent = t.payload.message;
         document.getElementById("transcript")?.appendChild(el);
       }
 
-      const audioSrc = t?.payload?.audio?.src || t?.payload?.src || null;
-      if (audioSrc) {
-        console.debug("TRACE audio src (len):", audioSrc.length);
-        onResponse?.(
-          { audioUrl: audioSrc },
-          chatState.get().playbackResolve?.(),
-        );
+      // Handle audio: either URL or base64 content
+      if (t?.type === "audio" && t?.payload) {
+        let url = null;
+
+        // Check for direct URL first
+        if (t.payload.audio?.src) {
+          url = t.payload.audio.src;
+        }
+        // Handle base64 content
+        else if (t.payload.encoding === "audio/mp3" && t.payload.content) {
+          console.log(
+            "Converting base64 audio to blob URL, content length:",
+            t.payload.content.length,
+          );
+          url = createAudioBlobFromBase64(
+            t.payload.content,
+            t.payload.encoding,
+          );
+        }
+
+        if (url) {
+          console.log("🎵 Audio URL ready:", url.substring(0, 50) + "...");
+          onResponse?.({ audioUrl: url }, chatState.get().playbackResolve?.());
+        } else {
+          console.warn("⚠️ Failed to create audio URL from payload");
+        }
       }
       return;
     }
 
     if (event === "responseDone") {
       console.debug("TRACE end → responseDone");
-      onResponse?.({ done: true }, chatState.get().playbackResolve?.());
-      return;
-    }
-
-    if (event === "response") {
-      console.info("LEGACY response:", data);
-      if (data?.text) {
-        const el = document.createElement("div");
-        el.textContent = data.text;
-        document.getElementById("transcript")?.appendChild(el);
+      const resolver = chatState.get().playbackResolve;
+      try {
+        // Tell main/ui that this turn is done; they will wait on any queued audio
+        onResponse?.({ done: true }, resolver);
+      } finally {
+        // Clear the resolver so next request can set a fresh one
+        chatState.set({ playbackResolve: null });
       }
-      onResponse?.(data, chatState.get().playbackResolve?.());
       return;
     }
 
@@ -76,28 +123,36 @@ export const initSocket = (onResponse, onError) => {
       return;
     }
 
-    if (event === "buttonDown") {
-      console.info("⬇️ USB button down");
-      handleButtonPress();
-      return;
-    }
-    if (event === "buttonUp") {
-      console.info("⬆️ USB button up");
-      handleButtonRelease();
-      return;
-    }
-
-    console.debug("WS ⇐ unhandled event:", event, data);
+    console.debug("WS ← unhandled event:", event, data);
   };
 
   return Promise.resolve();
 };
 
-export const sendCommand = async (userID, text, { streaming = true } = {}) => {
-  const event = streaming ? "commandStream" : "command";
-  const payload = { event, data: { userID, text } };
+export const sendLaunch = (userID) => {
+  const payload = { event: "launch", data: { userID } };
   const preview = JSON.stringify(payload).slice(0, 260);
-  console.debug("WS ⇒", preview);
+  console.debug("WS →", preview);
+
+  if (socket?.readyState === WebSocket.OPEN) {
+    try {
+      socket.send(JSON.stringify(payload));
+      console.info("✅ Launch sent");
+    } catch (err) {
+      console.error("❌ Error sending launch:", err);
+      throw err;
+    }
+  } else {
+    const errMsg = "⚠️ WebSocket is not open";
+    console.warn(errMsg);
+    throw new Error(errMsg);
+  }
+};
+
+export const sendCommand = async (userID, text) => {
+  const payload = { event: "commandStream", data: { userID, text } };
+  const preview = JSON.stringify(payload).slice(0, 260);
+  console.debug("WS →", preview);
 
   if (socket?.readyState === WebSocket.OPEN) {
     try {
@@ -113,24 +168,3 @@ export const sendCommand = async (userID, text, { streaming = true } = {}) => {
     throw new Error(errMsg);
   }
 };
-
-export const setPlaybackResolver = (resolve) => {
-  chatState.set({ playbackResolve: resolve });
-};
-
-// Spacebar fallback
-let spaceHeld = false;
-window.addEventListener("keydown", (e) => {
-  if (e.code === "Space" && !spaceHeld) {
-    e.preventDefault();
-    spaceHeld = true;
-    handleButtonPress();
-  }
-});
-window.addEventListener("keyup", (e) => {
-  if (e.code === "Space") {
-    e.preventDefault();
-    spaceHeld = false;
-    handleButtonRelease();
-  }
-});
