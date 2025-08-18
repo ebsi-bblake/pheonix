@@ -3,3 +3,7 @@
 .direnv
 .DS_Store
 node_modules
+.backend.pid
+.frontend.pid
+./frontend.log
+./backend.log
