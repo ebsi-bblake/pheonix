@@ -37,13 +37,8 @@ const createAudioBlobFromBase64 = (base64Content, mimeType = "audio/mp3") => {
 };
 
 export const initSocket = (onResponse, onError) => {
-  console.info("window.location.host", window.location.host);
-
   socket = new WebSocket("ws://localhost:3001/");
-
-  // Store socket reference in chat state for access from other modules
   chatState.set({ webSocket: socket });
-
   socket.onopen = () => console.info("✅ WebSocket connected");
   socket.onclose = () => {
     console.warn("❌ WebSocket disconnected");
@@ -55,7 +50,7 @@ export const initSocket = (onResponse, onError) => {
   };
 
   socket.onmessage = (e) => {
-    console.log("🔥 RAW MESSAGE RECEIVED:", e.data);
+    // console.log("🔥 RAW MESSAGE RECEIVED:", e.data);
 
     let parsed;
     try {
@@ -65,7 +60,7 @@ export const initSocket = (onResponse, onError) => {
       return;
     }
 
-    console.log("🔥 PARSED MESSAGE:", parsed);
+    // console.log("🔥 PARSED MESSAGE:", parsed);
 
     const { event, data } = parsed;
     const preview = JSON.stringify(parsed).slice(0, 260);
@@ -91,10 +86,6 @@ export const initSocket = (onResponse, onError) => {
         }
         // Handle base64 content
         else if (t.payload.encoding === "audio/mp3" && t.payload.content) {
-          console.log(
-            "Converting base64 audio to blob URL, content length:",
-            t.payload.content.length,
-          );
           url = createAudioBlobFromBase64(
             t.payload.content,
             t.payload.encoding,
@@ -102,7 +93,6 @@ export const initSocket = (onResponse, onError) => {
         }
 
         if (url) {
-          console.log("🎵 Audio URL ready:", url.substring(0, 50) + "...");
           onResponse?.({ audioUrl: url });
         } else {
           console.warn("⚠️ Failed to create audio URL from payload");
